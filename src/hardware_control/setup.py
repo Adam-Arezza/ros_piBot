@@ -1,4 +1,6 @@
 from setuptools import setup
+import os
+from glob import glob
 
 package_name = 'hardware_control'
 
@@ -10,6 +12,7 @@ setup(
         ('share/ament_index/resource_index/packages',
             ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml']),
+        (os.path.join('share', package_name), glob('launch/*.launch.py'))
     ],
     install_requires=['setuptools'],
     zip_safe=True,
@@ -20,6 +23,9 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
+        #node_name=package_name.node_script:main <--- add the main if there is a main function in script
+		'motor_pwm=hardware_control.motors:main',
+        'serial_comms=hardware_control.serial_comms:main'
         ],
     },
 )

@@ -1,0 +1,12 @@
+nano_1:
+  serial_comms:
+    ros__parameters:
+      ser_msg: "Hey nano1"
+      ser_port: "/dev/ttyUSB0"
+nano_2:
+  serial_comms:
+    ros__parameters:
+      ser_msg: "Hey nano2"
+      ser_port: "/dev/ttyUSB1"
+
+
