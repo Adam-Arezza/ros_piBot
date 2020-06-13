@@ -1,12 +1,21 @@
 nano_1:
   serial_comms:
     ros__parameters:
-      ser_msg: "Hey nano1"
+      motor_control: True
       ser_port: "/dev/ttyUSB0"
+      refresh_rate: 0.02
+      encoder_left: "encoder_left"
+      encoder_right: "encoder_right"
 nano_2:
   serial_comms:
     ros__parameters:
-      ser_msg: "Hey nano2"
+      motor_control: False
       ser_port: "/dev/ttyUSB1"
+      refresh_rate: 0.02
+      ultrasonic_array: "ultrasonic"
+motor_pwms:
+  ros__parameters:
+    wheel_base: 0.2286
+    wheel_radius: 0.032
 
 
