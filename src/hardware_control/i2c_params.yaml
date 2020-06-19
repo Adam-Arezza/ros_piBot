@@ -1,0 +1,6 @@
+i2c_node:
+  ros__parameters:
+    servo_board: "0x40"
+    LCD_addr: "0x27"
+    IMU_addr: "0x68"
+    

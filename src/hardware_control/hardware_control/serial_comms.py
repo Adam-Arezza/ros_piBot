@@ -28,52 +28,58 @@ class Serial_com(Node):
             self.rate = 0.02
         self.ser = serial.Serial(self.port, 115200, timeout=1)
         # self.publish = self.create_publisher(
-        #     String, 'nano_serial_data', qos_profile=None)
-        if self.motor_control_enable:
+        #     String, 'nano_serial_data', qos_profile=1)
+        if self.motor_control_enable == True:
             self.subscribe = self.create_subscription(
-                Float32MultiArray, "motor_pwm_vals", self.send_serial_data, qos_profile=None)
+                Float32MultiArray, "motor_pwm_vals", self.send_serial_data, qos_profile=1)
         self.receive_timer = self.create_timer(self.rate, self.get_serial_data)
         if self.get_parameter(name="encoder_left").get_parameter_value().string_value != None:
             self.encoder_left = self.create_publisher(
-                Int32, "left_tick", qos_profile=None)
+                Int32, "left_tick", qos_profile=1)
         if self.get_parameter(name="encoder_right").get_parameter_value().string_value != None:
             self.encoder_right = self.create_publisher(
-                Int32, "right_tick", qos_profile=None)
+                Int32, "right_tick", qos_profile=1)
         if self.get_parameter(name="ultrasonic_array").get_parameter_value().string_value != None:
             self.ultrasonic = self.create_publisher(
-                Int32MultiArray, "ultrasonic", qos_profile=None)
+                Int32MultiArray, "ultrasonic", qos_profile=1)
     # def msg_timer_cb(self):
     #     self.msg = self.get_parameter(name="ser_msg").get_parameter_value().string_value
-    #     self.ser.write(self.msg.encode("ascii"))
+    #     self.ser.write(self.msg.encode("ascii")
 
     def get_serial_data(self):
+        # need to make this more general since ticks arent the only thing the nanos send
         if self.ser.in_waiting > 0:
             # msg = String()
             # msg.data = self.ser.read_all().decode('utf8')
             # msg.data = msg.data.split("-")
             # self.publish.publish(msg)
-            msg = self.ser.read_all().decode('utf8')
-            msg = msg.split("-")
-            right_ticks = msg[0].split(":")[1]
-            left_ticks = msg[1].split(":")[1]
-            right_ticks_int = int(right_ticks)
-            left_ticks_int = int(left_ticks)
-            left_tick = Int32()
-            right_tick = Int32()
-            left_tick.data = left_ticks_int
-            right_tick.data = right_ticks_int
-            self.encoder_left.publish(left_tick)
-            self.encoder_right.publish(right_tick)
+            try:
+                msg = self.ser.read_all().decode('utf8')
+                msg = msg.split("-")
+                right_ticks = msg[0].split(":")[1]
+                left_ticks = msg[1].split(":")[1]
+                right_ticks_int = int(right_ticks)
+                left_ticks_int = int(left_ticks)
+                left_tick = Int32()
+                right_tick = Int32()
+                left_tick.data = left_ticks_int
+                right_tick.data = right_ticks_int
+                self.encoder_left.publish(left_tick)
+                self.encoder_right.publish(right_tick)
+            except:
+                print("lol")
             # self.get_logger().info(left_ticks + ":" + right_ticks)
 
     def send_serial_data(self, msg):
-        self.ser.write(msg.data.encode('ascii'))
+        self.ser.write(str(msg.data[0]).encode('ascii'))
         self.ser.write(b"\n")
-        self.get_logger().info(msg.data)
+        out = str(msg.data[0])
+        self.get_logger().info(out)
+
 
 def main(args=None):
     rclpy.init(args=args)
-    my_serial=Serial_com()
+    my_serial = Serial_com()
     rclpy.spin(my_serial)
     my_serial.destroy_node()
     rclpy.shutdown()

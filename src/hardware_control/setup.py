@@ -25,7 +25,8 @@ setup(
         'console_scripts': [
         #node_name=package_name.node_script:main <--- add the main if there is a main function in script
 		'motor_pwms=hardware_control.motor_cmds:main',
-        'serial_comms=hardware_control.serial_comms:main'
+        'serial_comms=hardware_control.serial_comms:main',
+        'imu_node=hardware_control.imu:main'
         ],
     },
 )
