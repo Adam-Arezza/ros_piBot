@@ -1,6 +1,6 @@
 from setuptools import setup
 
-package_name = 'vision'
+package_name = 'motion_control'
 
 setup(
     name=package_name,
@@ -14,7 +14,7 @@ setup(
     install_requires=['setuptools'],
     zip_safe=True,
     maintainer='adam',
-    maintainer_email='arezza.adam@gmail.com',
+    maintainer_email='Adam-Arezza',
     description='TODO: Package description',
     license='TODO: License declaration',
     tests_require=['pytest'],

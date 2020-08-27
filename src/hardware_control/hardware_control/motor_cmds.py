@@ -3,9 +3,10 @@ from rclpy.node import Node
 from std_msgs.msg import String
 from geometry_msgs.msg import Twist
 from std_msgs.msg import Float32MultiArray
+
 class Motor_cmds(Node):
     def __init__(self):
-        super().__init__("motor_pwms")
+        super().__init__("motor_cmds")
         self.teleop_cmds = self.create_subscription(Twist, "/cmd_vel", self.convert_to_pwm, qos_profile=1)
         self.motion_cmds = self.create_subscription(Float32MultiArray, "/vr_vl", self.convert_to_pwm, qos_profile=1)
         self.motor_pwm_vals = self.create_publisher(Float32MultiArray, "/motor_pwm_vals", qos_profile=1)
@@ -32,7 +33,7 @@ class Motor_cmds(Node):
             pubV.data = [pwm_out]
             self.motor_pwm_vals.publish(pubV)
 
-        elif type(cmd) is Float32MultiArray:
+        elif:
             #publish pwm values on the motor_pwm_vals topic
             pass
 
