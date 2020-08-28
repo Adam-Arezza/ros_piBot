@@ -4,9 +4,9 @@ import rclpy
 from rclpy.node import Node
 from std_msgs.msg import Float32MultiArray
 
-class Motor_node(Node):
+class Motor_driver(Node):
     def __init__(self):
-        super().__init__("motor_node")
+        super().__init__("motor_driver")
         self.port = "/dev/ttyUSB1"
         self.ser = serial.Serial(self.port, 115200, timeout=1)
         self.motor_pwms = self.create_subscription(Float32MultiArray, "/motor_pwm_vals", self.send_motor_commands)
@@ -19,7 +19,7 @@ class Motor_node(Node):
 
 def main(args=None):
     rclpy.init(args=args)
-    motors = Motor_node()
+    motors = Motor_driver()
     rclpy.spin(motors)
     motors.destroy_node()
     rclpy.shutdown()

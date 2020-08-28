@@ -4,7 +4,7 @@
   <name>motion_control</name>
   <version>0.0.0</version>
   <description>TODO: Package description</description>
-  <maintainer email="Adam-Arezza">adam</maintainer>
+  <maintainer email="arezza.adam@gmail.com">adam</maintainer>
   <license>TODO: License declaration</license>
 
   <test_depend>ament_copyright</test_depend>
@@ -14,5 +14,6 @@
 
   <export>
     <build_type>ament_python</build_type>
+    <depend>rclpy</depend>
   </export>
 </package>

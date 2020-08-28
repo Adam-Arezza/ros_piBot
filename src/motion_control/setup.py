@@ -14,12 +14,13 @@ setup(
     install_requires=['setuptools'],
     zip_safe=True,
     maintainer='adam',
-    maintainer_email='Adam-Arezza',
+    maintainer_email='arezza.adam@gmail.com',
     description='TODO: Package description',
     license='TODO: License declaration',
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
+            'diff_drive_controller=motion_control.diff_drive:main'
         ],
     },
 )

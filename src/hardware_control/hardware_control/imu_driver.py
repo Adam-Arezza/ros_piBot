@@ -10,9 +10,9 @@ gyro_offset_y = 1.4837979999999988
 gyro_offset_z = -1.206071999999996
 
 
-class IMU_node(Node):
+class IMU_driver(Node):
     def __init__(self):
-        super().__init__("imu_node")
+        super().__init__("imu_driver")
         self.imu = FaBo9Axis_MPU9250.MPU9250()
         self.imu_pub = self.create_publisher(Float32MultiArray, "/imu_data", qos_profile=1)
         self.timer = self.create_timer(0.05, self.get_data)
@@ -29,7 +29,7 @@ class IMU_node(Node):
 
 def main(args=None):
     rclpy.init(args=args)
-    imu_node = IMU_node()
+    imu_node = IMU_driver()
     rclpy.spin(imu_node)
     imu_node.destroy_node()
     rclpy.shutdown()

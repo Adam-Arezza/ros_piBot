@@ -21,19 +21,19 @@ class PoseEstimator(Node):
         self.ultrasonic_array = None
 
     
-    def set_imu_vals(data):
-        self.imu_gryo_z = data.data[2]
+    # def set_imu_vals(data):
+    #     self.imu_gryo_z = data.data[2]
     
-    def set_right_ticks(data):
-        self.right_wheel_ticks = data.data
+    # def set_right_ticks(data):
+    #     self.right_wheel_ticks = data.data
 
-    def set_left_ticks(data):
-        self.left_wheel_ticks = data.data 
+    # def set_left_ticks(data):
+    #     self.left_wheel_ticks = data.data 
 
-    def set_ultrasonic_val(data):
-        self.ultrasonic_array = data.data
+    # def set_ultrasonic_val(data):
+    #     self.ultrasonic_array = data.data
     
-    def main_loop():
+    # def main_loop():
 
 
 

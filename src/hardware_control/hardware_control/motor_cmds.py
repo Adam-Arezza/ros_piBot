@@ -7,9 +7,9 @@ from std_msgs.msg import Float32MultiArray
 class Motor_cmds(Node):
     def __init__(self):
         super().__init__("motor_cmds")
-        self.teleop_cmds = self.create_subscription(Twist, "/cmd_vel", self.convert_to_pwm, qos_profile=1)
-        self.motion_cmds = self.create_subscription(Float32MultiArray, "/vr_vl", self.convert_to_pwm, qos_profile=1)
-        self.motor_pwm_vals = self.create_publisher(Float32MultiArray, "/motor_pwm_vals", qos_profile=1)
+        self.teleop_cmds = self.create_subscription(Twist, "/cmd_vel", self.convert_to_pwm, qos_profile=10)
+        self.motion_cmds = self.create_subscription(Float32MultiArray, "/vr_vl", self.convert_to_pwm, qos_profile=10)
+        self.motor_pwm_vals = self.create_publisher(Float32MultiArray, "/motor_pwm_vals", qos_profile=10)
         # self.timer = self.create_timer(0.5, self.setPwm)
 
     # def setPwm(self):
