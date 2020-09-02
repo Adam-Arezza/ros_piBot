@@ -11,8 +11,8 @@ class DiffDriveNode(Node):
         self.declare_parameter("wheel_radius")
         self.teleop_cmds = self.create_subscription(Twist, "/cmd_vel", self.wheel_vel_calc, qos_profile=10)
         self.wheel_velocities = self.create_publisher(Float32MultiArray, "/vr_vl", qos_profile=10)
-        self.wheel_base = self.get_parameter("wheel_base").get_parameter_value()
-        self.wheel_radius = self.get_parameter("wheel_radius").get_parameter_value()
+        self.wheel_base = self.get_parameter("wheel_base").get_parameter_value().double_value
+        self.wheel_radius = self.get_parameter("wheel_radius").get_parameter_value().double_value
         self.get_logger().info("Differential drive controller node running...")
     
     def wheel_vel_calc(self, cmd):

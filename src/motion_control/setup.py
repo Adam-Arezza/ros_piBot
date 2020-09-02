@@ -20,7 +20,8 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'diff_drive_controller=motion_control.diff_drive:main'
+            'diff_drive_controller=motion_control.diff_drive:main',
+            'pid_controller=motion_control.PID:main'
         ],
     },
 )

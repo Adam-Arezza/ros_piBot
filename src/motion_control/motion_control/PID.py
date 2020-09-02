@@ -13,11 +13,11 @@ class PID_node(Node): # MODIFY NAME
         self.declare_parameter("kd")
         self.declare_parameter("wheel_radius")
         self.declare_parameter("ticks_per_rev")
-        self.ticks_per_rev = self.get_parameter("ticks_per_rev").get_parameter_value()
-        self.kp = self.get_parameter("kp").get_parameter_value()
-        self.ki = self.get_parameter("ki").get_parameter_value()
-        self.kd = self.get_parameter("kd").get_parameter_value()
-        self.wheel_radius = self.get_parameter("wheel_radius").get_parameter_value()
+        self.ticks_per_rev = self.get_parameter("ticks_per_rev").get_parameter_value().integer_value
+        self.kp = self.get_parameter("kp").get_parameter_value().double_value
+        self.ki = self.get_parameter("ki").get_parameter_value().double_value
+        self.kd = self.get_parameter("kd").get_parameter_value().double_value
+        self.wheel_radius = self.get_parameter("wheel_radius").get_parameter_value().double_value
         self.target_right_ws = 0
         self.target_left_ws = 0
         self.vel_timer = self.create_timer(0.1, self.get_velocities)
@@ -31,6 +31,7 @@ class PID_node(Node): # MODIFY NAME
         self.right_vel = 0
         self.left_vel = 0
         self.pid_timer = self.create_timer(0.1, self.pid_loop)
+        self.pid_output = self.create_publisher(Float32MultiArray, "/pidR_pidL", qos_profile=10)
         self.get_logger().info("PID controller has started running...")
     
     def set_targets(self, targets):
@@ -60,6 +61,10 @@ class PID_node(Node): # MODIFY NAME
 
         left_err = self.target_left_ws - self.left_vel
         pid_out_left = self.kp * left_err
+        pid_out = Float32MultiArray()
+        pid_out.data = [pid_out_right, pid_out_left]
+        self.pid_output.publish(pid_out)
+
 
 def main(args=None):
     rclpy.init(args=args)

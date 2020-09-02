@@ -1,0 +1,6 @@
+motor_driver:
+  ros__parameters:
+    vel_max: 0.5
+    vel_min: 0.0
+    pwm_max: 255
+    pwm_min: 170
