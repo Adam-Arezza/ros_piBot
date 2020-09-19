@@ -14,7 +14,7 @@ class IMU_driver(Node):
     def __init__(self):
         super().__init__("imu_driver")
         self.imu = FaBo9Axis_MPU9250.MPU9250()
-        self.imu_pub = self.create_publisher(Float32MultiArray, "/imu_data", qos_profile=1)
+        self.imu_pub = self.create_publisher(Float32MultiArray, "/imu_data", qos_profile=10)
         self.timer = self.create_timer(0.05, self.get_data)
     
     def get_data(self):

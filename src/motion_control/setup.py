@@ -21,7 +21,8 @@ setup(
     entry_points={
         'console_scripts': [
             'diff_drive_controller=motion_control.diff_drive:main',
-            'pid_controller=motion_control.PID:main'
+            'pid_controller=motion_control.PID:main',
+            'wheel_speed=motion_control.wheel_speed:main'
         ],
     },
 )
