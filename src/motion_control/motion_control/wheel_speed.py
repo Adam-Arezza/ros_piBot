@@ -4,11 +4,21 @@ import math
 from std_msgs.msg import Int32
 from std_msgs.msg import Float32MultiArray
 from std_msgs.msg import Int32MultiArray
+import RPi.GPIO as GPIO
+import time
 
 class WheelSpeedNode(Node):
     def __init__(self):
         super().__init__("wheel_speed")
         self.node_name = "wheel_speed"
+        GPIO.setwarnings(False)
+        GPIO.setmode(GPIO.BOARD)
+        self.right_encoder_pin = 13
+        self.left_encoder_pin = 11
+        GPIO.setup(self.right_encoder_pin, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+        GPIO.setup(self.left_encoder_pin, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+        GPIO.add_event_detect(self.left_encoder_pin, GPIO.RISING, callback=self.cbr, bouncetime=10)
+        GPIO.add_event_detect(self.right_encoder_pin, GPIO.RISING, callback=self.cbl, bouncetime=10)
 
         # Parameters
         self.declare_parameter("wheel_radius")
@@ -24,7 +34,7 @@ class WheelSpeedNode(Node):
         self.interval = self.create_timer(self.refresh_rate, self.get_velocities)
 
         # Subscribers and Publishers
-        self.ticks = self.create_subscription(Int32MultiArray, "/ticks", self.set_ticks ,qos_profile=10)
+        # self.ticks = self.create_subscription(Int32MultiArray, "/ticks", self.set_ticks ,qos_profile=10)
         self.vel_publisher = self.create_publisher(Float32MultiArray, "/velocity", qos_profile=10)
 
         # Variables
@@ -35,10 +45,16 @@ class WheelSpeedNode(Node):
 
         # Initialization message
         self.get_logger().info(f'{self.node_name} is now online.')
+    
+    def cbr(self, channel):
+        self.right_tick += 1
 
-    def set_ticks(self, ticks):
-        self.right_tick = ticks.data[0]
-        self.left_tick = ticks.data[1]
+    def cbl(self, channel):
+        self.left_tick += 1
+
+    # def set_ticks(self, ticks):
+    #     self.right_tick = ticks.data[0]
+    #     self.left_tick = ticks.data[1]
 
     def get_velocities(self):
         circumference = self.wheel_radius * 2 * math.pi
@@ -54,10 +70,10 @@ class WheelSpeedNode(Node):
         dist_r = d_r * self.meters_per_tick
         dist = (dist_l + dist_r) / 2
         velocity = dist / self.refresh_rate
-
         wheel_vels = Float32MultiArray()
         wheel_vels.data = [right_angular_vel, left_angular_vel, velocity]
         self.vel_publisher.publish(wheel_vels)
+        self.get_logger().info(f'right ticks: {self.right_tick}, left ticks: {self.left_tick}')
         
 
 def main(args=None):

@@ -4,3 +4,4 @@ install/
 log/
 .vscode
 launch/__pycache__
+gpio_tests/*
