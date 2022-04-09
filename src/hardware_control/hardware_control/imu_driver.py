@@ -5,9 +5,9 @@ from rclpy.node import Node
 from std_msgs.msg import Float32MultiArray
 
 
-gyro_offset_x = -1.4957000000000027
-gyro_offset_y = 1.4837979999999988
-gyro_offset_z = -1.206071999999996
+gyro_offset_x = -1.872561000000002
+gyro_offset_y = 1.4569519999999994
+gyro_offset_z = -0.6041550000000008
 
 
 class IMU_driver(Node):
