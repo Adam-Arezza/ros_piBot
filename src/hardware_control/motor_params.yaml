@@ -2,5 +2,5 @@ motor_driver:
   ros__parameters:
     rad_max: 14.5
     rad_min: 0.0
-    pwm_max: 255
-    pwm_min: 160
+    dc_max: 100
+    dc_min: 80
