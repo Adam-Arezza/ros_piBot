@@ -24,8 +24,8 @@ class PID_node(Node):
         self.pid_timer = self.create_timer(self.pid_rate, self.pid_loop)
 
         # Subcribers and Publishers
-        self.target_vels = self.create_subscription(Float32MultiArray, "/vr_vl", self.set_targets)
-        self.current_wheel_vels = self.create_subscription(Float32MultiArray, "/velocity", self.set_vels)
+        self.target_vels = self.create_subscription(Float32MultiArray, "/vr_vl", self.set_targets, qos_profile=10)
+        self.current_wheel_vels = self.create_subscription(Float32MultiArray, "/velocity", self.set_vels, qos_profile=10)
         self.pid_output = self.create_publisher(Float32MultiArray, "/pidR_pidL", qos_profile=10)
 
         # Vairables

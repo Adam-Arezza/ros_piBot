@@ -47,6 +47,10 @@ class Motor_driver(Node):
         self.left_wheel = 0.0
         self.left_duty_cycle = 0
         self.right_duty_cycle = 0
+        self.p1 = GPIO.PWM(40, 100)
+        self.p2 = GPIO.PWM(38, 100)
+        self.p1.start(0)
+        self.p2.start(0)
 
         #Initialization message
         self.get_logger().info(f'{self.node_name} is now online.')
@@ -92,12 +96,43 @@ class Motor_driver(Node):
     def send_motor_commands(self, pid_vals):
         pid_right = pid_vals.data[0]
         pid_left = pid_vals.data[1]
-        dcL = str(self.scale_vals(pid_left, self.right_wheel))
-        dcR = str(self.scale_vals(pid_right, self.left_wheel))
+        dcL = 0
+        dcR = 0
+        if pid_left == 0 and pid_right == 0:
+            self.stop()
+        else:
+            dcL = self.scale_vals(pid_left, self.right_wheel)
+            dcR = self.scale_vals(pid_right, self.left_wheel)
+            # bandaid fix for dc < 0
+            if dcL < 0:
+                dcL = 0
+            if dcR < 0:
+                dcR = 0
+            self.move([dcR,dcL])
         msg = f'{dcR}:{dcL}'
-        pwm_msg = String()
-        pwm_msg.data = msg
-        self.pwm_publisher.publish(pwm_msg)
+        dc_msg = String()
+        dc_msg.data = msg
+        self.dc_publisher.publish(dc_msg)
+    
+    def move(self, duty_cycles):
+        GPIO.output(40, True)
+        GPIO.output(37, False)
+        GPIO.output(35, True)
+        GPIO.output(33, False)
+        GPIO.output(31, True)
+        GPIO.output(38, True)
+        self.p1.ChangeDutyCycle(duty_cycles[0])
+        self.p2.ChangeDutyCycle(duty_cycles[1])
+    
+    def stop(self):
+        GPIO.output(40, False)
+        GPIO.output(37, False)
+        GPIO.output(35, False)
+        GPIO.output(33, False)
+        GPIO.output(31, False)
+        GPIO.output(38, False)
+        self.p1.ChangeDutyCycle(0)
+        self.p2.ChangeDutyCycle(0)
 
 def main(args=None):
     rclpy.init(args=args)

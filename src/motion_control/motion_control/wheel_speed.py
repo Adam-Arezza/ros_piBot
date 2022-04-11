@@ -31,11 +31,14 @@ class WheelSpeedNode(Node):
         self.meters_per_tick = self.get_parameter("meters_per_tick").get_parameter_value().double_value
 
         # Timers
-        self.interval = self.create_timer(self.refresh_rate, self.get_velocities)
+        self.vel_interval = self.create_timer(self.refresh_rate, self.get_velocities)
+        self.tick_interval = self.create_timer(self.refresh_rate, self.pub_ticks)
+
 
         # Subscribers and Publishers
         # self.ticks = self.create_subscription(Int32MultiArray, "/ticks", self.set_ticks ,qos_profile=10)
         self.vel_publisher = self.create_publisher(Float32MultiArray, "/velocity", qos_profile=10)
+        self.ticks_publisher = self.create_publisher(Int32MultiArray, "/ticks", qos_profile=10)
 
         # Variables
         self.right_tick = 0
@@ -52,9 +55,10 @@ class WheelSpeedNode(Node):
     def cbl(self, channel):
         self.left_tick += 1
 
-    # def set_ticks(self, ticks):
-    #     self.right_tick = ticks.data[0]
-    #     self.left_tick = ticks.data[1]
+    def pub_ticks(self):
+        ticks = Int32MultiArray()
+        ticks.data = [self.right_tick, self.left_tick]
+        self.ticks_publisher.publish(ticks)
 
     def get_velocities(self):
         circumference = self.wheel_radius * 2 * math.pi
@@ -73,7 +77,7 @@ class WheelSpeedNode(Node):
         wheel_vels = Float32MultiArray()
         wheel_vels.data = [right_angular_vel, left_angular_vel, velocity]
         self.vel_publisher.publish(wheel_vels)
-        self.get_logger().info(f'right ticks: {self.right_tick}, left ticks: {self.left_tick}')
+        # self.get_logger().info(f'right ticks: {self.right_tick}, left ticks: {self.left_tick}')
         
 
 def main(args=None):
