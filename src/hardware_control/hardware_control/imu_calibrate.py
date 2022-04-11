@@ -6,15 +6,15 @@ avg_gyro_x = 0
 avg_gyro_y = 0
 avg_gyro_z = 0
 
-for i in range(500):
+for i in range(1000):
     gyro = imu.readGyro()
     avg_gyro_x += gyro["x"]
     avg_gyro_y += gyro["y"]
     avg_gyro_z += gyro["z"]
 
-x_offset = avg_gyro_x / 500
-y_offset = avg_gyro_y / 500
-z_offset = avg_gyro_z / 500
+x_offset = avg_gyro_x / 1000
+y_offset = avg_gyro_y / 1000
+z_offset = avg_gyro_z / 1000
 
 gyro = imu.readGyro()
 
