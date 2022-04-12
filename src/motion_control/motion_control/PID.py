@@ -51,7 +51,7 @@ class PID_node(Node):
         right_err = self.target_right_vel - self.right_vel
         self.right_err_sum = self.right_err_sum + right_err
         # ki and kd terms 0 for proportional controller
-        pid_out_right = self.kp * right_err + self.ki
+        pid_out_right = self.kp * right_err
         left_err = self.target_left_vel - self.left_vel
         self.left_err_sum = self.left_err_sum + left_err
         pid_out_left = self.kp * left_err

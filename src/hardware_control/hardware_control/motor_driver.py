@@ -101,8 +101,8 @@ class Motor_driver(Node):
         if pid_left == 0 and pid_right == 0:
             self.stop()
         else:
-            dcL = self.scale_vals(pid_left, self.right_wheel)
-            dcR = self.scale_vals(pid_right, self.left_wheel)
+            dcL = self.scale_vals(pid_left, self.left_wheel)
+            dcR = self.scale_vals(pid_right, self.right_wheel)
             # bandaid fix for dc < 0
             if dcL < 0:
                 dcL = 0
