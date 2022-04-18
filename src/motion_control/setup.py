@@ -22,7 +22,10 @@ setup(
         'console_scripts': [
             'diff_drive_controller=motion_control.diff_drive:main',
             'pid_controller=motion_control.PID:main',
-            'wheel_speed=motion_control.wheel_speed:main'
+            'wheel_speed=motion_control.wheel_speed:main',
+            'base_tf_broadcaster=motion_control.base_tf_broadcaster:main',
+            'imu_tf_broadcaster=motion_control.imu_tf_broadcaster:main',
+            'pose_estimator=motion_control.pose_estimator:main'
         ],
     },
 )
