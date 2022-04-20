@@ -26,6 +26,7 @@ class WheelSpeedNode(Node):
 
         # Subscribers and Publishers
         self.ticks = self.create_subscription(Int32MultiArray, "/ticks", self.set_ticks ,qos_profile=10)
+        self.cmd_wheel_vels = self.create_subscription(Float32MultiArray, "/vr_vl", self.wheel_cmd_vels, qos_profile=10)
         self.vel_publisher = self.create_publisher(Float32MultiArray, "/velocity", qos_profile=10)
 
         # Variables
@@ -33,6 +34,8 @@ class WheelSpeedNode(Node):
         self.left_tick = 0
         self.old_left = 0
         self.old_right = 0
+        self.right_cmd_direction = 0
+        self.left_cmd_direction = 0
 
         # Initialization message
         self.get_logger().info(f'{self.node_name} is now online.')
@@ -40,6 +43,10 @@ class WheelSpeedNode(Node):
     def set_ticks(self, ticks):
         self.right_tick = ticks.data[0]
         self.left_tick = ticks.data[1]
+
+    def wheel_cmd_vels(self, vels):
+        self.right_cmd_direction = 1 if vels.data[0] >= 0 else 0
+        self.left_cmd_direction = 1 if vels.data[1] >= 0 else 0
 
     def get_velocities(self):
         circumference = self.wheel_radius * 2 * math.pi
@@ -55,8 +62,14 @@ class WheelSpeedNode(Node):
         dist_r = d_right_ticks * self.meters_per_tick
         dist = (dist_l + dist_r) / 2
         velocity = dist / self.refresh_rate
+        if self.right_cmd_direction == 0:
+            right_angular_vel = -1 * right_angular_vel
+            right_linear_vel = -1 * right_linear_vel
+        if self.left_cmd_direction == 0:
+            left_angular_vel = -1 * left_angular_vel
+            left_linear_vel = -1 * left_linear_vel
         wheel_vels = Float32MultiArray()
-        wheel_vels.data = [right_angular_vel, left_angular_vel, velocity]
+        wheel_vels.data = [right_angular_vel, left_angular_vel, velocity, right_linear_vel, left_linear_vel]
         self.vel_publisher.publish(wheel_vels)
         
 

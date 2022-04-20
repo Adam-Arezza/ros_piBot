@@ -44,8 +44,8 @@ class PID_node(Node):
         self.target_left_vel = targets.data[1]
     
     def set_vels(self, vels):
-        self.right_vel = vels.data[0] 
-        self.left_vel = vels.data[1] 
+        self.right_vel = vels.data[3] 
+        self.left_vel = vels.data[4] 
 
     def pid_loop(self):
         right_err = self.target_right_vel - self.right_vel

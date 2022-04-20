@@ -26,6 +26,7 @@ class PoseEstimator(Node):
         self.robot_pose = self.create_publisher(Pose2D, "/robot_pose", qos_profile=10)
         self.imu_data = self.create_subscription(Float32MultiArray, "/imu_data", self.set_imu_vals, qos_profile=10)
         self.wheel_ticks = self.create_subscription(Int32MultiArray, "/ticks", self.set_ticks, qos_profile=10)
+        self.wheel_vels = self.create_subscription(Float32MultiArray, "/velocity", self.set_vels, qos_profile=10)
         self.pose_timer = self.create_timer(0.01, self.estimate_pose)
         
         self.right_ticks = 0
@@ -39,8 +40,10 @@ class PoseEstimator(Node):
         self.y_dps = 0
         self.z_dps = 0
         self.heading = 0
-        self.x = 0
-        self.y = 0
+        self.x = 0.0
+        self.y = 0.0
+        self.right_vel = 0
+        self.left_vel = 0
         
         # Initialization message
         self.get_logger().info(f'{self.node_name} is now online.')
@@ -56,6 +59,10 @@ class PoseEstimator(Node):
     def set_ticks(self, ticks):
         self.right_ticks = ticks.data[0]
         self.left_ticks = ticks.data[1]
+    
+    def set_vels(self, vels):
+        self.right_vel = vels.data[3]
+        self.left_vel = vels.data[4]
 
     def estimate_pose(self):
         # time interval between pose calculations (same as timer)
@@ -76,15 +83,29 @@ class PoseEstimator(Node):
         dist = (dist_l + dist_r) / 2
 
         # the change in heading for the interval
-        d_heading = self.heading + ((dist_r - dist_l) / self.wheel_base )
-
+        # d_heading = self.heading + ((dist_r - dist_l) / self.wheel_base )
+        angle_update = self.heading + ((self.right_vel - self.left_vel) / self.wheel_base)*dt
+        d_heading = math.atan2(math.sin(angle_update), math.cos(angle_update))
         # the change in x and y
-        d_x = self.x + dist * math.cos(math.radians(self.heading))
-        d_y = self.y + dist * math.sin(math.radians(self.heading))
+        d_x = None
+        d_y = None
 
+        if self.right_vel > 0 and self.left_vel > 0:
+            d_x = self.x + dist * math.cos(self.heading)
+            d_y = self.y + dist * math.sin(self.heading)
+        elif self.right_vel < 0 and self.left_vel < 0:
+            d_x = self.x - dist * math.cos(self.heading)
+            d_y = self.y - dist * math.sin(self.heading)
+        elif self.right_vel < 0 and self.left_vel > 0:
+            pass
+        elif self.right_vel > 0 and self.left_vel < 0:
+            pass
+        elif self.right_vel == 0 and self.left_vel == 0:
+            pass
+        
         # updating the x, y and heading
-        self.x = d_x
-        self.y = d_y
+        self.x = d_x if d_x else self.x
+        self.y = d_y if d_y else self.y
         self.heading = d_heading
 
         # publishing the new pose
