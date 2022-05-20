@@ -1,6 +1,6 @@
 motor_driver:
   ros__parameters:
-    vel_max: 0.2
+    vel_max: 0.55
     vel_min: 0
     dc_max: 100
-    dc_min: 70
+    dc_min: 20

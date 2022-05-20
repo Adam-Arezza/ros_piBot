@@ -32,9 +32,9 @@ def generate_launch_description():
         executable="imu_node"
     )
 
-    wheel_speed_node = Node(
+    velocity_node = Node(
         package="motion_control",
-        executable="wheel_speed",
+        executable="velocities",
         parameters=["src/motion_control/robot_params.yaml"]
     )
 
@@ -65,7 +65,7 @@ def generate_launch_description():
     ld.add_action(motor_driver_node)
     # ld.add_action(serial_sensor_node)
     ld.add_action(imu_node)
-    ld.add_action(wheel_speed_node)
+    ld.add_action(velocity_node)
     ld.add_action(encoder_node)
     ld.add_action(pose_estimator_node)
     ld.add_action(base_tf_broadcaster)

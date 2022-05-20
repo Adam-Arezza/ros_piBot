@@ -31,8 +31,10 @@ class DiffDriveNode(Node):
         omega = cmd.angular.z
         if vel > self.max_linear_vel:
             vel = self.max_linear_vel
-        vr = (2 * vel + omega * self.wheel_base) / (2 * self.wheel_radius)
-        vl = (2 * vel - omega * self.wheel_base) / (2 * self.wheel_radius)
+        # vr = (2 * vel + omega * self.wheel_base) / (2 * self.wheel_radius)
+        # vl = (2 * vel - omega * self.wheel_base) / (2 * self.wheel_radius)
+        vr = vel + ((omega * self.wheel_base) / 2)
+        vl = vel - ((omega * self.wheel_base) / 2)
         wheel_vels = Float32MultiArray()
         wheel_vels.data = [vr, vl]
         self.wheel_velocities.publish(wheel_vels)
