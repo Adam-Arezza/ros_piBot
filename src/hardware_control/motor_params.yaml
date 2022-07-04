@@ -3,4 +3,4 @@ motor_driver:
     vel_max: 0.55
     vel_min: 0
     dc_max: 100
-    dc_min: 20
+    dc_min: 0

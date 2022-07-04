@@ -26,7 +26,7 @@ class PoseEstimator(Node):
         self.robot_pose = self.create_publisher(Pose2D, "/robot_pose", qos_profile=10)
         self.imu_data = self.create_subscription(Float32MultiArray, "/imu_data", self.set_imu_vals, qos_profile=10)
         self.wheel_ticks = self.create_subscription(Int32MultiArray, "/ticks", self.set_ticks, qos_profile=10)
-        self.wheel_velocities_subscriber = self.create_subscription(Float32MultiArray, "/wheel_linear_velocity", self.set_wheel_vels, qos_profile=10)
+        self.wheel_velocities_subscriber = self.create_subscription(Float32MultiArray, "/vels", self.set_wheel_vels, qos_profile=10)
         self.pose_timer = self.create_timer(0.01, self.estimate_pose)
         
         self.right_ticks = 0
@@ -83,9 +83,9 @@ class PoseEstimator(Node):
         dist = (dist_l + dist_r) / 2
 
         # the change in heading for the interval
-        d_heading = self.heading + ((dist_r - dist_l) / self.wheel_base)
+        # d_heading = self.heading + ((dist_r - dist_l) / self.wheel_base)
         # angle_update = self.heading + ((self.right_vel - self.left_vel) / self.wheel_base)*dt
-        d_heading = math.atan2(math.sin(d_heading), math.cos(d_heading))
+        d_heading = math.atan2(math.sin(self.heading + ((dist_r - dist_l) / self.wheel_base)), math.cos(self.heading + ((dist_r - dist_l) / self.wheel_base)))
         # the change in x and y
         d_x = None
         d_y = None
@@ -93,9 +93,9 @@ class PoseEstimator(Node):
         if self.right_vel > 0 and self.left_vel > 0:
             d_x = self.x + dist * math.cos(self.heading)
             d_y = self.y + dist * math.sin(self.heading)
-        elif self.right_vel < 0 and self.left_vel < 0:
-            d_x = self.x - dist * math.cos(self.heading)
-            d_y = self.y - dist * math.sin(self.heading)
+        # elif self.right_vel < 0 and self.left_vel < 0:
+        #     d_x = self.x - dist * math.cos(self.heading)
+        #     d_y = self.y - dist * math.sin(self.heading)
         elif self.right_vel < 0 and self.left_vel > 0:
             pass
         elif self.right_vel > 0 and self.left_vel < 0:

@@ -23,67 +23,65 @@ class PID_node(Node):
         self.pid_rate = self.get_parameter("pid_rate").get_parameter_value().double_value
 
         # Timers
-        self.pid_timer = self.create_timer(self.pid_rate, self.pid_loop)
+        # self.pid_timer = self.create_timer(self.pid_rate, self.pid_loop)
 
         # Subcribers and Publishers
-        self.target_vels = self.create_subscription(Float32MultiArray, "/vr_vl", self.set_targets, qos_profile=10)
-        self.target_angular_vel = self.create_subscription(Twist, "/cmd_vel", self.set_angular_vel_target, qos_profile=10)
-        self.pose_subscriber = self.create_subscription(Pose2D, "/robot_pose", self.set_theta, qos_profile=10)
-        self.current_wheel_vels = self.create_subscription(Float32MultiArray, "/wheel_linear_velocity", self.set_vels, qos_profile=10)
+        self.target_vels = self.create_subscription(Float32MultiArray, "/target_velocities", self.set_targets, qos_profile=10)
+        self.current_wheel_vels = self.create_subscription(Float32MultiArray, "/vels", self.pid_loop, qos_profile=10)
         self.pid_output = self.create_publisher(Float32MultiArray, "/pidR_pidL", qos_profile=10)
 
         # Vairables
         self.target_right_vel = 0
         self.target_left_vel = 0
 
-        self.right_vel = 0
-        self.left_vel = 0
-
         self.right_err_sum = 0
         self.left_err_sum = 0
 
-        self.target_angular = 0
-        self.angular_err_sum = 0
-        self.theta = 0
-        self.theta_old = 0
+        self.prev_right_err = 0
+        self.prev_left_err = 0
 
         # Initialization message
         self.get_logger().info(f'{self.node_name} is now online.')
 
     def set_targets(self, targets):
-        self.target_right_vel = targets.data[0]
-        self.target_left_vel = targets.data[1]
+        if self.target_right_vel != targets.data[0]:
+            self.prev_right_err = 0
+            self.right_sum_err = 0
+            self.target_right_vel = targets.data[0]
+        if self.target_left_vel != targets.data[1]:
+            self.prev_left_err = 0
+            self.left_sum_err = 0
+            self.target_left_vel = targets.data[1]
     
-    def set_angular_vel_target(self,twist):
-        self.target_angular = twist.angular.z
-    
-    def set_vels(self, vels):
-        self.right_vel = vels.data[0] 
-        self.left_vel = vels.data[1]
-
-    def set_theta(self, pose):
-        self.theta = pose.theta
+    # def set_vels(self, vels):
+    #     self.right_vel = vels.data[0]
+    #     self.left_vel = vels.data[1]
 
 #only considers each wheel separately, need to consider both for heading error
-    def pid_loop(self):
-        
-        # actual_angular_vel = self.theta - self.theta_old
-        # angular_vel_err = self.target_angular - actual_angular_vel
-        # self.angular_err_sum = self.angular_err_sum + angular_vel_err
+    def pid_loop(self, vels):
+        right_vel = vels.data[0]
+        left_vel = vels.data[1]
 
-        right_err = self.target_right_vel - self.right_vel
+        right_err = self.target_right_vel - right_vel
         self.right_err_sum = self.right_err_sum + right_err
-        pid_out_right = self.kp * right_err + self.ki * self.right_err_sum
+        d_right_err = right_err - self.prev_right_err
+        pid_out_right = self.kp * right_err + self.ki * self.right_err_sum + self.kd * d_right_err
 
-        left_err = self.target_left_vel - self.left_vel
+        left_err = self.target_left_vel - left_vel
+        
         self.left_err_sum = self.left_err_sum + left_err
-        pid_out_left = self.kp * left_err + self.ki * self.left_err_sum
+        d_left_err = left_err - self.prev_left_err
+        pid_out_left = self.kp * left_err + self.ki * self.left_err_sum + self.kd * d_left_err
 
-
+        if self.target_right_vel == 0 and self.target_left_vel == 0:
+            pid_out_left = 0.0
+            pid_out_right = 0.0
+        
+        self.prev_right_err = right_err
+        self.prev_left_err = left_err
+        self.get_logger().info(f'Right_error: {right_err}, Left_error: {left_err}')
         pid_out = Float32MultiArray()
         pid_out.data = [pid_out_right, pid_out_left]
-        if self.target_right_vel == 0 and self.target_left_vel == 0:
-            pid_out.data = [0.0,0.0]
         self.pid_output.publish(pid_out)
 
 

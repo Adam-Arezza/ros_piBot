@@ -38,19 +38,19 @@ class Motor_driver(Node):
         self.dc_max = self.get_parameter("dc_max").get_parameter_value().integer_value
 
         # Subscribers and Publishers
-        self.wheel_vels = self.create_subscription(Float32MultiArray, "/wheel_linear_velocity", self.wheel_speeds, qos_profile=10)
         self.motor_pwms = self.create_subscription(Float32MultiArray, "/pidR_pidL", self.send_motor_commands, qos_profile=10)
+        self.command_velocities = self.create_subscription(Float32MultiArray, "/target_velocities", self.set_motor_commands, qos_profile=10)
         self.dc_publisher = self.create_publisher(String, "/dcR_dcL", qos_profile=10)
 
         # Variables
-        self.right_wheel_velocity = 0.0
-        self.left_wheel_velocity = 0.0
         self.left_duty_cycle = 0
         self.right_duty_cycle = 0
         self.p1 = GPIO.PWM(40, 50)
         self.p2 = GPIO.PWM(38, 50)
         self.p1.start(0)
         self.p2.start(0)
+        self.vr = 0
+        self.vl = 0
 
         #Initialization message
         self.get_logger().info(f'{self.node_name} is now online.')
@@ -59,27 +59,16 @@ class Motor_driver(Node):
         self.right_wheel_velocity = vels.data[0]
         self.left_wheel_velocity = vels.data[1]
     
-    def scale_vals(self, pid, wheel_speed):
+    def set_motor_commands(self, diff_drive_vels):
+        self.vr = diff_drive_vels.data[0]
+        self.vl = diff_drive_vels.data[1]
+    
+    def scale_vals(self, pid):
         vel_range = self.vel_max - self.vel_min
         dc_range = self.dc_max - self.dc_min
-        
-        # if pid == 0:
-        #     m_per_sec = 0
-        # output = 0
+        output = ((pid * dc_range) / vel_range)
 
-        # if velocity_correction < 0:
-        #     rps = m_per_sec
-        #     new_rps = (((rps - 0) * dc_range) / vel_range) + self.dc_min
-        #     output = new_rps * -1
-
-        # if m_per_sec > 0:
-        #     new_rps = (((m_per_sec - 0) * dc_range) / vel_range) + self.dc_min
-        #     output = new_rps
-
-        # if m_per_sec == 0:
-        #     output = 0
-
-        output = ((pid * dc_range) / vel_range) + self.dc_min
+        # output = abs(output)
 
         if output > self.dc_max:
             output = self.dc_max
@@ -95,23 +84,20 @@ class Motor_driver(Node):
         pid_left = pid_vals.data[1]
         dcL = 0
         dcR = 0
-        dcL = self.scale_vals(pid_left, self.left_wheel_velocity)
-        dcR = self.scale_vals(pid_right, self.right_wheel_velocity)
-        if pid_left == 0 and pid_right == 0:
+        dcL = self.scale_vals(pid_left)
+        dcR = self.scale_vals(pid_right)
+        # self.get_logger().info(f'{dcR}:{dcL}')
+        if self.vr == 0 and self.vl == 0:
             self.stop()
-        elif pid_left > 0 and pid_right > 0:
+        elif self.vr > 0 and self.vl > 0:
             self.forward([dcR,dcL])
-        elif pid_left < 0 and pid_right < 0:
+        elif self.vl < 0 and self.vr < 0:
             self.reverse([dcR,dcL])
-        elif pid_left < 0 and pid_right > 0:
+        elif self.vl < 0 and self.vr > 0:
             self.spin_right([dcR, dcL])
-        elif pid_left > 0 and pid_right < 0:
-            # bandaid fix for dc < 0
-            # if dcL < 0:
-            #     dcL = 0
-            # if dcR < 0:
-            #     dcR = 0
+        elif self.vl > 0 and self.vr < 0:
             self.spin_left([dcR,dcL])
+        
         msg = f'{dcR}:{dcL}'
         dc_msg = String()
         dc_msg.data = msg

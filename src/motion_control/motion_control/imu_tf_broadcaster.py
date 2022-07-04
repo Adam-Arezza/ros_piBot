@@ -12,7 +12,7 @@ class ImuFramePublisher(Node):
         self.broadcaster = TransformBroadcaster(self)
         self.imu_subscriber = self.create_subscription(
             Float32MultiArray,
-            '/imu_data',
+            '/imu/data_raw',
             self.get_rates,
             qos_profile=10
         )
