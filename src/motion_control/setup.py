@@ -25,7 +25,7 @@ setup(
             'velocities=motion_control.velocities:main',
             'base_tf_broadcaster=motion_control.base_tf_broadcaster:main',
             'imu_tf_broadcaster=motion_control.imu_tf_broadcaster:main',
-            'pose_estimator=motion_control.pose_estimator:main'
+            'wheel_odometry=motion_control.wheel_odometry:main'
         ],
     },
 )

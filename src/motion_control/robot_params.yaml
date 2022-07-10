@@ -12,13 +12,14 @@ pid_controller:
 velocities:
   ros__parameters:
     wheel_radius: 0.03175
-pose_estimator:
+wheel_odometry:
   ros__parameters:
     wheel_base: 0.19685
     wheel_radius: 0.03175
     ticks_per_rev: 40
-    refresh_rate: 0.1
+    refresh_rate: 0.03
     meters_per_tick: 0.0049873
-
+    frame_id: "odom"
+    child_frame_id: "base_link"
     
 

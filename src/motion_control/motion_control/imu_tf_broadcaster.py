@@ -1,17 +1,17 @@
 from geometry_msgs.msg import TransformStamped
-from std_msgs.msg import Float32MultiArray
 import rclpy
 from rclpy.node import Node
 from tf2_ros import TransformBroadcaster
 import tf_transformations
 from geometry_msgs.msg import Pose2D
+from sensor_msgs.msg import Imu
 
 class ImuFramePublisher(Node):
     def __init__(self):
         super().__init__('imu_tf_broadcaster')
         self.broadcaster = TransformBroadcaster(self)
         self.imu_subscriber = self.create_subscription(
-            Float32MultiArray,
+            Imu,
             '/imu/data_raw',
             self.get_rates,
             qos_profile=10
@@ -22,9 +22,9 @@ class ImuFramePublisher(Node):
         self.z_rot_rate = 0.0
 
     def get_rates(self,imu_data):
-        self.x_rot_rate = imu_data.data[0]
-        self.y_rot_rate = imu_data.data[1]
-        self.z_rot_rate = imu_data.data[2]
+        self.x_rot_rate = imu_data.angular_velocity.x
+        self.y_rot_rate = imu_data.angular_velocity.y
+        self.z_rot_rate = imu_data.angular_velocity.z
 
     def handle_imu(self):
         x,y,z = 0.0,0.0,0.0

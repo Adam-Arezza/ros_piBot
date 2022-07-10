@@ -27,7 +27,7 @@ class PID_node(Node):
 
         # Subcribers and Publishers
         self.target_vels = self.create_subscription(Float32MultiArray, "/target_velocities", self.set_targets, qos_profile=10)
-        self.current_wheel_vels = self.create_subscription(Float32MultiArray, "/vels", self.pid_loop, qos_profile=10)
+        self.current_wheel_vels = self.create_subscription(Float32MultiArray, "/wheel/velocities", self.pid_loop, qos_profile=10)
         self.pid_output = self.create_publisher(Float32MultiArray, "/pidR_pidL", qos_profile=10)
 
         # Vairables
@@ -57,7 +57,6 @@ class PID_node(Node):
     #     self.right_vel = vels.data[0]
     #     self.left_vel = vels.data[1]
 
-#only considers each wheel separately, need to consider both for heading error
     def pid_loop(self, vels):
         right_vel = vels.data[0]
         left_vel = vels.data[1]

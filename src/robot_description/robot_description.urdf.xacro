@@ -4,13 +4,11 @@
   <xacro:property name="base_width" value="0.178"/>
   <xacro:property name="base_length" value="0.194"/>
   <xacro:property name="base_height" value="0.067"/>
-
   <xacro:property name="wheel_radius" value="0.03175"/>
   <xacro:property name="wheel_width" value="0.013"/>
-  <xacro:property name="wheel_ygap" value="0.092"/>
+  <xacro:property name="wheel_ygap" value="0.007"/>
   <xacro:property name="wheel_zoff" value="0.0185"/>
   <xacro:property name="wheel_xoff" value="0.088"/>
-
   <xacro:property name="caster_xoff" value="0.082"/>
 
    <!-- Robot Base -->
@@ -48,7 +46,7 @@
       </visual>
     </link>
 
-    <joint name="${prefix}_joint" type="continuous">
+    <joint name="${prefix}_joint" type="fixed">
       <parent link="base_link"/>
       <child link="${prefix}_link"/>
       <origin xyz="${-wheel_xoff} ${y_reflect*(base_width/2+wheel_ygap)} ${-wheel_zoff}" rpy="0 0 0"/>
@@ -76,5 +74,34 @@
     <child link="front_caster"/>
     <origin xyz="${caster_xoff} 0.0 ${-(base_height/2)}" rpy="0 0 0"/>
   </joint>
+
+  <!-- Lidar Link -->
+  <link name="lidar_link">
+  <visual>
+    <geometry>
+    <cylinder radius="0.035" length="0.055" />
+    </geometry>
+    <material name="Gray">
+          <color rgba="0.5 0.5 0.5 1.0"/>
+        </material>
+  </visual>
+  </link>
+
+  <joint name="lidar_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="lidar_link"/>
+    <origin xyz="0.05 0 0.055" rpy="0 0 0"/>
+  </joint>
+
+  <!-- Lidar Link -->
+  <link name="laser">
+  </link>
+
+  <joint name="laser_joint" type="fixed">
+    <parent link="lidar_link"/>
+    <child link="laser"/>
+    <origin xyz="0 0 0" rpy="0 0 3.14159"/>
+  </joint>
+
 
 </robot>

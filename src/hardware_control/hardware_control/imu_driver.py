@@ -2,11 +2,9 @@
 import FaBo9Axis_MPU9250
 import rclpy
 from rclpy.node import Node
-from std_msgs.msg import Float32MultiArray
 from sensor_msgs.msg import Imu
 from geometry_msgs.msg import Quaternion
 from geometry_msgs.msg import Vector3
-from std_msgs.msg import Float64MultiArray
 from std_msgs.msg import Header
 import tf_transformations
 
@@ -24,14 +22,12 @@ class IMU_driver(Node):
         self.timer = self.create_timer(0.05, self.get_data)
     
     def get_data(self):
-        imu_data = Float32MultiArray()
+        # imu_data = Float32MultiArray()
         self.gyro_data = self.imu.readGyro()
         self.gyro_data["x"] = self.gyro_data["x"] - gyro_offset_x
         self.gyro_data["y"] = self.gyro_data["y"] - gyro_offset_y
         self.gyro_data["z"] = self.gyro_data["z"] - gyro_offset_z
         self.accel_data = self.imu.readAccel()
-        # imu_data.data = [self.gyro_data["x"], self.gyro_data["y"], self.gyro_data["z"], self.accel_data["x"], self.accel_data["y"], self.accel_data["z"]]
-        # self.imu_pub.publish(imu_data)
 
         imu_msg = Imu()
         # header
@@ -41,13 +37,14 @@ class IMU_driver(Node):
         # orientation
         imu_msg.orientation = Quaternion()
         q = tf_transformations.quaternion_from_euler(self.gyro_data["x"] , self.gyro_data["y"], self.gyro_data["z"])
-        imu_msg.orientation.x = q[0]
-        imu_msg.orientation.y = q[1]
-        imu_msg.orientation.z = q[2]
-        imu_msg.orientation.w = q[3]
+        imu_msg.orientation.x = 0.0
+        imu_msg.orientation.y = 0.0
+        imu_msg.orientation.z = 0.0
+        imu_msg.orientation.w = 0.0
+        
 
-        # imu_msg.orientation_covariance = Float64MultiArray()
-        imu_msg.orientation_covariance = [1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0]
+        # # imu_msg.orientation_covariance = Float64MultiArray()
+        imu_msg.orientation_covariance = [-1.0, 0.0, 0.0, -1.0, -1.0, 0.0, -1.0, 0.0, -1.0]
 
         # angular_velocity
         imu_msg.angular_velocity = Vector3()

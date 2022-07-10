@@ -12,7 +12,7 @@ class FramePublisher(Node):
         self.broadcaster = TransformBroadcaster(self)
         self.pose_subscription = self.create_subscription(
             Pose2D,
-            '/robot_pose',
+            '/wheel/odometry',
             self.handle_pose,
             qos_profile=10
         )
@@ -24,15 +24,15 @@ class FramePublisher(Node):
         t.header.frame_id = 'world'
         t.child_frame_id = 'base_link'
 
-        t.transform.translation.x = msg.x
-        t.transform.translation.y = msg.y
+        t.transform.translation.x = msg.pose.pose.position.x
+        t.transform.translation.y = msg.pose.pose.position.y
         t.transform.translation.z = 0.0
 
-        q = tf_transformations.quaternion_from_euler(0,0,msg.theta)
-        t.transform.rotation.x = q[0]
-        t.transform.rotation.y = q[1]
-        t.transform.rotation.z = q[2]
-        t.transform.rotation.w = q[3]
+        q = msg.pose.pose.orientation
+        t.transform.rotation.x = q.x
+        t.transform.rotation.y = q.y
+        t.transform.rotation.z = q.z
+        t.transform.rotation.w = q.w
         self.broadcaster.sendTransform(t)
 
 def main(args=None):
