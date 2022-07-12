@@ -9,3 +9,4 @@ src/hardware_control/hardware_control/__pycache__/*
 src/motion_control/motion_control/__pycache__/*
 src/hardware_control/hardware_control/__pycache__/*
 *.txt
+src/robot_localization

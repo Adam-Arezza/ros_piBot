@@ -4,14 +4,15 @@ import rclpy
 from rclpy.node import Node
 from tf2_ros import TransformBroadcaster
 import tf_transformations
-from geometry_msgs.msg import Pose2D
+# from geometry_msgs.msg import Pose2D
+from nav_msgs.msg import Odometry
 
 class FramePublisher(Node):
     def __init__(self):
         super().__init__('base_tf_broadcaster')
         self.broadcaster = TransformBroadcaster(self)
         self.pose_subscription = self.create_subscription(
-            Pose2D,
+            Odometry,
             '/wheel/odometry',
             self.handle_pose,
             qos_profile=10

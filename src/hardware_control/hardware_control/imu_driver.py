@@ -9,9 +9,9 @@ from std_msgs.msg import Header
 import tf_transformations
 
 
-gyro_offset_x = -1.872561000000002
-gyro_offset_y = 1.4569519999999994
-gyro_offset_z = -0.6041550000000008
+gyro_offset_x = -1.3698619999999953
+gyro_offset_y = 1.3088929999999972
+gyro_offset_z = -0.9788980000000018
 
 
 class IMU_driver(Node):
@@ -51,16 +51,16 @@ class IMU_driver(Node):
         imu_msg.angular_velocity.x = self.gyro_data["x"] * 0.0174533
         imu_msg.angular_velocity.y = self.gyro_data["y"] * 0.0174533
         imu_msg.angular_velocity.z = self.gyro_data["z"] * 0.0174533
-        imu_msg.angular_velocity_covariance = [1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0]
+        imu_msg.angular_velocity_covariance = [0.2, 0.0, 0.0, 0.0, 0.2, 0.0, 0.0, 0.0, 0.2]
         # imu_msg.angular_velocity_covariance.data = 
 
-        # linear_velocity
+        # linear_acceleration
         imu_msg.linear_acceleration = Vector3()
-        imu_msg.linear_acceleration.x = self.accel_data["x"] * 9.80665 
-        imu_msg.linear_acceleration.y = self.accel_data["y"] * 9.80665
+        imu_msg.linear_acceleration.x = self.accel_data["x"]
+        imu_msg.linear_acceleration.y = self.accel_data["y"]
         imu_msg.linear_acceleration.z = self.accel_data["z"] * 9.80665
         # imu_msg.linear_acceleration_covariance = Float64MultiArray()
-        imu_msg.linear_acceleration_covariance = [1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0]
+        imu_msg.linear_acceleration_covariance = [0.2, 0.0, 0.0, 0.0, 0.2, 0.0, 0.0, 0.0, 0.2]
         self.imu_pub.publish(imu_msg)
 
 def main(args=None):

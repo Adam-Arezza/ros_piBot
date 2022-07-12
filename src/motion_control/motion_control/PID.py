@@ -78,7 +78,6 @@ class PID_node(Node):
         
         self.prev_right_err = right_err
         self.prev_left_err = left_err
-        self.get_logger().info(f'Right_error: {right_err}, Left_error: {left_err}')
         pid_out = Float32MultiArray()
         pid_out.data = [pid_out_right, pid_out_left]
         self.pid_output.publish(pid_out)

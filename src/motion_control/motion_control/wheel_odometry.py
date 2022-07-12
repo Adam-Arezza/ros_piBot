@@ -113,7 +113,7 @@ class WheelOdometry(Node):
             elif i == 21 or i == 28 or i == 35:
                 odom_msg.pose.covariance[i] += 0.1
             else:
-                odom_msg.pose.covariance = 0.0 
+                odom_msg.pose.covariance[i] = 0.0 
         
         # Initializing msgs
         odom_msg.pose.pose = Pose()
@@ -138,6 +138,8 @@ class WheelOdometry(Node):
         # pose.y = self.y
         # pose.theta = self.heading
         # self.robot_pose.publish(pose)
+
+        self.wheel_odometry.publish(odom_msg)
 
 def main(args=None):
     rclpy.init(args=args)
