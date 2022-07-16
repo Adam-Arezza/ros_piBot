@@ -26,8 +26,16 @@ class PID_node(Node):
         # self.pid_timer = self.create_timer(self.pid_rate, self.pid_loop)
 
         # Subcribers and Publishers
-        self.target_vels = self.create_subscription(Float32MultiArray, "/target_velocities", self.set_targets, qos_profile=10)
-        self.current_wheel_vels = self.create_subscription(Float32MultiArray, "/wheel/velocities", self.pid_loop, qos_profile=10)
+        self.target_vels = self.create_subscription(
+                                                    Float32MultiArray, 
+                                                    "/target_velocities", 
+                                                    self.set_targets, 
+                                                    qos_profile=10)
+        self.current_wheel_vels = self.create_subscription(
+                                                           Float32MultiArray, 
+                                                           "/wheel/velocities", 
+                                                           self.pid_loop, 
+                                                           qos_profile=10)
         self.pid_output = self.create_publisher(Float32MultiArray, "/pidR_pidL", qos_profile=10)
 
         # Vairables
@@ -52,32 +60,39 @@ class PID_node(Node):
             self.prev_left_err = 0
             self.left_sum_err = 0
             self.target_left_vel = targets.data[1]
-    
-    # def set_vels(self, vels):
-    #     self.right_vel = vels.data[0]
-    #     self.left_vel = vels.data[1]
 
     def pid_loop(self, vels):
+
+        # get the current wheel velocities
         right_vel = vels.data[0]
         left_vel = vels.data[1]
 
+        # compute the current error
+        # compute the sum of errors
+        # compute the delta of current - previous error
+        # compute the PID output
         right_err = self.target_right_vel - right_vel
         self.right_err_sum = self.right_err_sum + right_err
         d_right_err = right_err - self.prev_right_err
         pid_out_right = self.kp * right_err + self.ki * self.right_err_sum + self.kd * d_right_err
 
         left_err = self.target_left_vel - left_vel
-        
         self.left_err_sum = self.left_err_sum + left_err
         d_left_err = left_err - self.prev_left_err
         pid_out_left = self.kp * left_err + self.ki * self.left_err_sum + self.kd * d_left_err
 
+
+        self.prev_right_err = right_err
+        self.prev_left_err = left_err
+
         if self.target_right_vel == 0 and self.target_left_vel == 0:
             pid_out_left = 0.0
             pid_out_right = 0.0
-        
-        self.prev_right_err = right_err
-        self.prev_left_err = left_err
+            self.prev_right_err = 0.0
+            self.prev_left_err = 0.0
+            self.right_err_sum = 0.0
+            self.left_err_sum = 0.0
+            
         pid_out = Float32MultiArray()
         pid_out.data = [pid_out_right, pid_out_left]
         self.pid_output.publish(pid_out)

@@ -2,10 +2,10 @@ diff_drive_controller:
   ros__parameters:
     wheel_base: 0.19685
     wheel_radius: 0.03175
-    max_linear_vel: 0.55
+    max_linear_vel: 0.3
 pid_controller:
   ros__parameters:
-    kp: 8.0
+    kp: 2
     ki: 1.2
     kd: 0.9
     pid_rate: 0.05

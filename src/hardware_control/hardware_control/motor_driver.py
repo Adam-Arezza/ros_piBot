@@ -13,7 +13,6 @@ class Motor_driver(Node):
 
         # l293d enable pins 40,38
         # l293d input pins 31,33,35,37
-
         GPIO.setwarnings(False)
         GPIO.setmode(GPIO.BOARD)
         GPIO.setup(37, GPIO.OUT) # left motor pin b
@@ -38,8 +37,16 @@ class Motor_driver(Node):
         self.dc_max = self.get_parameter("dc_max").get_parameter_value().integer_value
 
         # Subscribers and Publishers
-        self.motor_pwms = self.create_subscription(Float32MultiArray, "/pidR_pidL", self.send_motor_commands, qos_profile=10)
-        self.command_velocities = self.create_subscription(Float32MultiArray, "/target_velocities", self.set_motor_commands, qos_profile=10)
+        self.pid_out = self.create_subscription(
+                                                Float32MultiArray, 
+                                                "/pidR_pidL", 
+                                                self.send_motor_commands, 
+                                                qos_profile=10)
+        self.command_velocities = self.create_subscription(
+                                                           Float32MultiArray, 
+                                                           "/target_velocities", 
+                                                           self.set_motor_commands, 
+                                                           qos_profile=10)
         self.dc_publisher = self.create_publisher(String, "/dcR_dcL", qos_profile=10)
 
         # Variables
@@ -55,7 +62,7 @@ class Motor_driver(Node):
         #Initialization message
         self.get_logger().info(f'{self.node_name} is now online.')
 
-    def wheel_speeds(self, vels):
+    def wheel_velocities(self, vels):
         self.right_wheel_velocity = vels.data[0]
         self.left_wheel_velocity = vels.data[1]
     
@@ -63,10 +70,13 @@ class Motor_driver(Node):
         self.vr = diff_drive_vels.data[0]
         self.vl = diff_drive_vels.data[1]
     
-    def scale_vals(self, pid):
+    def scale_vals(self, pid, target):
         vel_range = self.vel_max - self.vel_min
         dc_range = self.dc_max - self.dc_min
-        output = ((pid * dc_range) / vel_range)
+        output = ((pid * dc_range) / vel_range) + self.dc_min
+
+        if target < 0:
+            output = -output
 
         # output = abs(output)
 
@@ -84,9 +94,13 @@ class Motor_driver(Node):
         pid_left = pid_vals.data[1]
         dcL = 0
         dcR = 0
-        dcL = self.scale_vals(pid_left)
-        dcR = self.scale_vals(pid_right)
+        dcL = self.scale_vals(pid_left, self.vl)
+        dcR = self.scale_vals(pid_right, self.vr)
         # self.get_logger().info(f'{dcR}:{dcL}')
+        msg = f'{dcR}:{dcL}'
+        dc_msg = String()
+        dc_msg.data = msg
+        self.dc_publisher.publish(dc_msg)
         if self.vr == 0 and self.vl == 0:
             self.stop()
         elif self.vr > 0 and self.vl > 0:
@@ -98,11 +112,6 @@ class Motor_driver(Node):
         elif self.vl > 0 and self.vr < 0:
             self.spin_left([dcR,dcL])
         
-        msg = f'{dcR}:{dcL}'
-        dc_msg = String()
-        dc_msg.data = msg
-        self.dc_publisher.publish(dc_msg)
-    
     def forward(self, duty_cycles):
         #right motor
         GPIO.output(40, True)
@@ -115,6 +124,7 @@ class Motor_driver(Node):
         GPIO.output(35, True)
         GPIO.output(38, True)
         self.p2.ChangeDutyCycle(duty_cycles[1])
+        # self.get_logger().info(f'{duty_cycles[0]}:{duty_cycles[1]}')
     
     def reverse(self, duty_cycles):
         #right motor

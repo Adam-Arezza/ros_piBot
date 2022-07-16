@@ -3,11 +3,12 @@ from launch_ros.actions import Node
 import os
 import launch_ros
 from ament_index_python.packages import get_package_share_directory
-
+from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch import LaunchDescription
 from launch.substitutions import LaunchConfiguration
 from launch.actions import DeclareLaunchArgument
 from launch_ros.actions import Node
+from launch_ros.substitutions import FindPackageShare
 
 import xacro
 
@@ -15,6 +16,12 @@ import xacro
 pkg_share = launch_ros.substitutions.FindPackageShare(package='robot_description').find('robot_description')
 xacro_file = os.path.join('src/robot_description/robot_description.urdf.xacro')
 robot_description_config = xacro.process_file(xacro_file)
+nav2_dir = FindPackageShare(package='nav2_bringup').find('nav2_bringup') 
+nav2_launch_dir = os.path.join(nav2_dir, 'launch') 
+# static_map_path = os.path.join(pkg_share, 'maps', 'smalltown_world.yaml')
+nav2_params_path = os.path.join(pkg_share, 'params', 'nav2_params.yaml')
+nav2_bt_path = FindPackageShare(package='nav2_bt_navigator').find('nav2_bt_navigator')
+behavior_tree_xml_path = os.path.join(nav2_bt_path, 'behavior_trees', 'navigate_w_replanning_and_recovery.xml')
 
 def generate_launch_description():
     ld = LaunchDescription()
@@ -56,12 +63,6 @@ def generate_launch_description():
         executable="imu_driver"
     )
 
-    # static_frame = Node(
-    #         package='tf2_ros',
-    #         executable='static_transform_publisher',
-    #         arguments = ['0', '0', '0', '0', '0', '0', 'world', 'base_link']
-    # )
-
     encoder_node = Node(
         package='hardware_control',
         executable='encoders'
@@ -85,11 +86,21 @@ def generate_launch_description():
                 'inverted': False,
                 'angle_compensate': True,
             }])
+    
+    start_async_slam_toolbox_node = Node(
+        parameters=["config/slam_params.yaml"],
+        package='slam_toolbox',
+        executable='async_slam_toolbox_node',
+        name='slam_toolbox',
+        output='screen')
+    
+    # start_ros2_navigation_cmd = IncludeLaunchDescription(
+    # PythonLaunchDescriptionSource(os.path.join(nav2_launch_dir, 'bringup_launch.py')),
+    # launch_arguments = {'slam': True,
+    #                     'map': map_yaml_file,
+    #                     'params_file': "config/nav2_params.yaml",
+    #                     'default_bt_xml_filename': default_bt_xml_filename}.items())
 
-    # base_tf_broadcaster = Node(
-    #     package='motion_control',
-    #     executable='base_tf_broadcaster'
-    # )
 
     ld.add_action(diff_drive_node)
     ld.add_action(pid_node)
@@ -97,10 +108,9 @@ def generate_launch_description():
     ld.add_action(imu_driver)
     ld.add_action(encoder_node)
     ld.add_action(wheel_odometry_node)
-    # ld.add_action(base_tf_broadcaster)
     ld.add_action(node_robot_state_publisher)
-    # ld.add_action(static_frame)
     ld.add_action(start_robot_localization_cmd)
     ld.add_action(laser_node)
+    ld.add_action(start_async_slam_toolbox_node)
     
     return ld
