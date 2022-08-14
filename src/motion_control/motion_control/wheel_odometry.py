@@ -40,9 +40,16 @@ class WheelOdometry(Node):
         self.left_ticks = 0
         self.old_right_ticks = 0
         self.old_left_ticks = 0
+
+        # pose variables
         self.heading = 0
         self.x = 0.0
         self.y = 0.0
+
+        # velocity variables
+        self.x_vel = 0.0
+        self.y_vel = 0.0
+        self.z_angular_vel = 0.0
         
         # Initialization message
         self.get_logger().info(f'{self.node_name} is now online.')
@@ -77,26 +84,18 @@ class WheelOdometry(Node):
         d_x = None
         d_y = None
 
-        # if self.right_vel > 0 and self.left_vel > 0:
-        #     d_x = self.x + dist * math.cos(self.heading)
-        #     d_y = self.y + dist * math.sin(self.heading)
-        # # elif self.right_vel < 0 and self.left_vel < 0:
-        # #     d_x = self.x - dist * math.cos(self.heading)
-        # #     d_y = self.y - dist * math.sin(self.heading)
-        # elif self.right_vel < 0 and self.left_vel > 0:
-        #     pass
-        # elif self.right_vel > 0 and self.left_vel < 0:
-        #     pass
-        # elif self.right_vel == 0 and self.left_vel == 0:
-        #     pass
         d_x = self.x + dist * math.cos(self.heading)
         d_y = self.y + dist * math.sin(self.heading)
-
 
         # updating the x, y and heading
         self.x = d_x if d_x else self.x
         self.y = d_y if d_y else self.y
         self.heading = d_heading
+
+        # updating the velocities
+        self.x_vel = d_x / dt
+        self.y_vel = d_y / dt
+        self.z_angular_vel = d_heading / dt
 
         #Constructing Odometry message and publishing odometry data
         odom_msg = Odometry()
@@ -110,10 +109,13 @@ class WheelOdometry(Node):
         for i in range(36):
             if i == 0 or i == 7 or i == 14:
                 odom_msg.pose.covariance[i] = 0.01
+                odom_msg.twist.covariance[i] = 0.01
             elif i == 21 or i == 28 or i == 35:
                 odom_msg.pose.covariance[i] += 0.1
+                odom_msg.twist.covariance[i] += 0.1
             else:
                 odom_msg.pose.covariance[i] = 0.0 
+                odom_msg.twist.covariance[i] = 0.0
         
         # Initializing msgs
         odom_msg.pose.pose = Pose()
@@ -132,12 +134,10 @@ class WheelOdometry(Node):
         odom_msg.pose.pose.orientation.z = quat[2]
         odom_msg.pose.pose.orientation.w = quat[3]
 
-
-        # pose = Pose2D()
-        # pose.x = self.x
-        # pose.y = self.y
-        # pose.theta = self.heading
-        # self.robot_pose.publish(pose)
+        # setting the velocity variables
+        odom_msg.twist.twist.linear.x = self.x_vel
+        odom_msg.twist.twist.linear.y = self.y_vel
+        odom_msg.twist.twist.angular.z = self.z_angular_vel
 
         self.wheel_odometry.publish(odom_msg)
 

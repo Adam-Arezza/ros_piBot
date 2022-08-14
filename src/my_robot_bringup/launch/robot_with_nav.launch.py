@@ -9,7 +9,6 @@ from launch.substitutions import LaunchConfiguration
 from launch.actions import DeclareLaunchArgument
 from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
-
 import xacro
 
 
@@ -94,6 +93,25 @@ def generate_launch_description():
         name='slam_toolbox',
         output='screen')
     
+    # laser_odom_node = Node(
+    #             package='rf2o_laser_odometry',
+    #             executable='rf2o_laser_odometry_node',
+    #             name='rf2o_laser_odometry',
+    #             output='screen',
+    #             parameters=[{
+    #                 'laser_scan_topic' : '/scan',
+    #                 'odom_topic' : '/odom_rf2o',
+    #                 'publish_tf' : False,
+    #                 'base_frame_id' : 'base_link',
+    #                 'odom_frame_id' : 'odom',
+    #                 'init_pose_from_topic' : '/wheel/odometry',
+    #                 'freq' : 10.0}],
+    #         )
+    
+    camera_node = Node(
+        package='v4l2_camera',
+        executable='v4l2_camera_node'
+    )
     # start_ros2_navigation_cmd = IncludeLaunchDescription(
     # PythonLaunchDescriptionSource(os.path.join(nav2_launch_dir, 'bringup_launch.py')),
     # launch_arguments = {'slam': True,
@@ -112,5 +130,7 @@ def generate_launch_description():
     ld.add_action(start_robot_localization_cmd)
     ld.add_action(laser_node)
     ld.add_action(start_async_slam_toolbox_node)
+    # ld.add_action(laser_odom_node)
+    ld.add_action(camera_node)
     
     return ld

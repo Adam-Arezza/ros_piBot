@@ -14,9 +14,11 @@ class DiffDriveNode(Node):
         self.declare_parameter("wheel_base")
         self.declare_parameter("wheel_radius")
         self.declare_parameter("max_linear_vel")
+        self.declare_parameter("max_angular_vel")
         self.wheel_base = self.get_parameter("wheel_base").get_parameter_value().double_value
         self.wheel_radius = self.get_parameter("wheel_radius").get_parameter_value().double_value
         self.max_linear_vel = self.get_parameter("max_linear_vel").get_parameter_value().double_value
+        self.max_angular_vel = self.get_parameter("max_angular_vel").get_parameter_value().double_value
 
         # Subcribers and Publishers
         self.teleop_cmds = self.create_subscription(Twist, "/cmd_vel", self.wheel_vel_calc, qos_profile=10)
@@ -37,9 +39,20 @@ class DiffDriveNode(Node):
         # capping the reverse linear velocity
         if vel < 0 and abs(vel) > self.max_linear_vel:
             vel = -self.max_linear_vel
+        
+        # capping the rotational velocity
+        if omega > 0 and omega > self.max_angular_vel:
+            omega = self.max_angular_vel
+        if omega < 0 and abs(omega) > self.max_angular_vel:
+            omega = -self.max_angular_vel
+
+        if vel == 0 and abs(omega) > 0:
+            omega = 0.25 * omega 
 
         # vr = (2 * vel + omega * self.wheel_base) / (2 * self.wheel_radius)
         # vl = (2 * vel - omega * self.wheel_base) / (2 * self.wheel_radius)
+        self.get_logger().info(f'omega: {omega}')
+        
         # computing right and left desired linear velocities
         # Publish target right and left wheel velocities
         vr = vel + ((omega * self.wheel_base) / 2)

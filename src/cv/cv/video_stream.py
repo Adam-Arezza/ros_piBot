@@ -9,7 +9,7 @@ class VideoStream(Node):
     def __init__(self):
         super().__init__('video_stream')
         self.node_name = 'video_stream'
-        self.publish_frames = self.create_publisher(Image, 'video_frames', qos_profile=10)
+        self.publish_frames = self.create_publisher(Image, '/video_frames', qos_profile=10)
         self.rate = 0.1
         self.timer = self.create_timer(self.rate, self.get_frames)
         self.capture = cv2.VideoCapture(0)
@@ -19,7 +19,7 @@ class VideoStream(Node):
     def get_frames(self):
         ret, frame = self.capture.read()
         if ret == True:
-            self.publish_frames.publish(self.bridge.cv2_to_imgmsg(frame))       
+            self.publish_frames.publish(self.bridge.cv2_to_imgmsg(frame, encoding='passthrough'))       
         self.get_logger().info('Publishing video frames')
 
 def main(args=None):
@@ -31,3 +31,4 @@ def main(args=None):
 
 if __name__ == "__main__":
     main()
+    

@@ -150,14 +150,14 @@ class Motor_driver(Node):
         GPIO.output(37, True)
         GPIO.output(35, False)
         GPIO.output(38, True)
-        self.p2.ChangeDutyCycle(duty_cycles[1])
+        self.p2.ChangeDutyCycle(0)
     
     def spin_right(self, duty_cycles):
         #right motor
         GPIO.output(40, True)
         GPIO.output(33, True)
         GPIO.output(31, False)
-        self.p1.ChangeDutyCycle(duty_cycles[0])
+        self.p1.ChangeDutyCycle(0)
 
         #left motor
         GPIO.output(37, False)

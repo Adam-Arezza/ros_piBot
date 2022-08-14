@@ -20,7 +20,8 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'video_stream=cv.video_stream:main'
+            'video_stream=cv.video_stream:main',
+            'video_reader=cv.video_reader:main'
         ],
     },
 )
