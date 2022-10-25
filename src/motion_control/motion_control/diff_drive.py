@@ -33,25 +33,21 @@ class DiffDriveNode(Node):
         vel = cmd.linear.x
         omega = cmd.angular.z
 
-        # capping the forward linear velocity
-        if vel > 0 and vel > self.max_linear_vel:
-            vel = self.max_linear_vel
-        # capping the reverse linear velocity
-        if vel < 0 and abs(vel) > self.max_linear_vel:
-            vel = -self.max_linear_vel
+        # # capping the forward linear velocity
+        # if vel > 0 and vel > self.max_linear_vel:
+        #     vel = self.max_linear_vel
+        # # capping the reverse linear velocity
+        # if vel < 0 and abs(vel) > self.max_linear_vel:
+        #     vel = -self.max_linear_vel
         
-        # capping the rotational velocity
-        if omega > 0 and omega > self.max_angular_vel:
-            omega = self.max_angular_vel
-        if omega < 0 and abs(omega) > self.max_angular_vel:
-            omega = -self.max_angular_vel
+        # # capping the rotational velocity
+        # if omega > 0 and omega > self.max_angular_vel:
+        #     omega = self.max_angular_vel
+        # if omega < 0 and abs(omega) > self.max_angular_vel:
+        #     omega = -self.max_angular_vel
 
-        if vel == 0 and abs(omega) > 0:
-            omega = 0.25 * omega 
-
-        # vr = (2 * vel + omega * self.wheel_base) / (2 * self.wheel_radius)
-        # vl = (2 * vel - omega * self.wheel_base) / (2 * self.wheel_radius)
-        self.get_logger().info(f'omega: {omega}')
+        # if vel == 0 and abs(omega) > 0:
+        #     omega = 0.25 * omega 
         
         # computing right and left desired linear velocities
         # Publish target right and left wheel velocities
@@ -60,13 +56,6 @@ class DiffDriveNode(Node):
         wheel_vels = Float32MultiArray()
         wheel_vels.data = [vr, vl]
         self.target_wheel_velocities.publish(wheel_vels)
-
-        # convert linear velocities to rpm targets and publish
-        # target_rpms = Float32MultiArray()
-        # right_target = ((vr / self.wheel_radius) / (2 * math.pi)) * 60
-        # left_target = ((vl / self.wheel_radius) / (2 * math.pi)) * 60
-        # target_rpms.data = [right_target, left_target]
-        # self.rpm_targets.publish(target_rpms)
 
 def main(args=None):
     rclpy.init(args=args)

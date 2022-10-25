@@ -12,12 +12,14 @@ class Encoders(Node):
         # Set up GPIO pins
         GPIO.setwarnings(False)
         GPIO.setmode(GPIO.BOARD)
+        GPIO.cleanup()
         self.right_encoder_pin = 13
         self.left_encoder_pin = 11
         GPIO.setup(self.right_encoder_pin, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
         GPIO.setup(self.left_encoder_pin, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
         GPIO.add_event_detect(self.left_encoder_pin, GPIO.BOTH, callback=self.cbl, bouncetime=2)
         GPIO.add_event_detect(self.right_encoder_pin, GPIO.BOTH, callback=self.cbr, bouncetime=2)
+        
 
         # Publishers/Subscribers
         self.enc_pub = self.create_publisher(Int32MultiArray, "/ticks", qos_profile=10)
@@ -40,6 +42,7 @@ class Encoders(Node):
         self.COEFF = 0.45
         self.Nticks = 40
         self.METERS_PER_TICK = 0.0049873
+        
         
         self.get_logger().info("Encoders online.")
     

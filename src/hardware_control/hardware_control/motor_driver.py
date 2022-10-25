@@ -70,7 +70,7 @@ class Motor_driver(Node):
         self.vr = diff_drive_vels.data[0]
         self.vl = diff_drive_vels.data[1]
     
-    def scale_vals(self, pid, target):
+    def velocity_to_duty_cycle(self, pid, target):
         vel_range = self.vel_max - self.vel_min
         dc_range = self.dc_max - self.dc_min
         output = ((pid * dc_range) / vel_range) + self.dc_min
@@ -90,12 +90,18 @@ class Motor_driver(Node):
         return output
 
     def send_motor_commands(self, pid_vals):
+        # RPM to Duty Cycle - Right Motor
+        # [3.38185955e-03 3.54084578e-02 3.88380108e+01]
+
+        # RPM to Duty Cycle - Left Motor
+        # [3.39027066e-03 7.21075773e-04 4.06248291e+01]
+
         pid_right = pid_vals.data[0]
         pid_left = pid_vals.data[1]
         dcL = 0
         dcR = 0
-        dcL = self.scale_vals(pid_left, self.vl)
-        dcR = self.scale_vals(pid_right, self.vr)
+        dcL = self.velocity_to_duty_cycle(pid_left, self.vl)
+        dcR = self.velocity_to_duty_cycle(pid_right, self.vr)
         # self.get_logger().info(f'{dcR}:{dcL}')
         msg = f'{dcR}:{dcL}'
         dc_msg = String()
@@ -108,9 +114,9 @@ class Motor_driver(Node):
         elif self.vl < 0 and self.vr < 0:
             self.reverse([dcR,dcL])
         elif self.vl < 0 and self.vr > 0:
-            self.spin_right([dcR, dcL])
+            self.spin_right([80, 80])
         elif self.vl > 0 and self.vr < 0:
-            self.spin_left([dcR,dcL])
+            self.spin_left([80, 80])
         
     def forward(self, duty_cycles):
         #right motor
@@ -150,14 +156,14 @@ class Motor_driver(Node):
         GPIO.output(37, True)
         GPIO.output(35, False)
         GPIO.output(38, True)
-        self.p2.ChangeDutyCycle(0)
+        self.p2.ChangeDutyCycle(duty_cycles[1])
     
     def spin_right(self, duty_cycles):
         #right motor
         GPIO.output(40, True)
         GPIO.output(33, True)
         GPIO.output(31, False)
-        self.p1.ChangeDutyCycle(0)
+        self.p1.ChangeDutyCycle(duty_cycles[0])
 
         #left motor
         GPIO.output(37, False)

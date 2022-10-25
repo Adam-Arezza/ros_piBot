@@ -15,12 +15,6 @@ import xacro
 pkg_share = launch_ros.substitutions.FindPackageShare(package='robot_description').find('robot_description')
 xacro_file = os.path.join('src/robot_description/robot_description.urdf.xacro')
 robot_description_config = xacro.process_file(xacro_file)
-nav2_dir = FindPackageShare(package='nav2_bringup').find('nav2_bringup') 
-nav2_launch_dir = os.path.join(nav2_dir, 'launch') 
-# static_map_path = os.path.join(pkg_share, 'maps', 'smalltown_world.yaml')
-nav2_params_path = os.path.join(pkg_share, 'params', 'nav2_params.yaml')
-nav2_bt_path = FindPackageShare(package='nav2_bt_navigator').find('nav2_bt_navigator')
-behavior_tree_xml_path = os.path.join(nav2_bt_path, 'behavior_trees', 'navigate_w_replanning_and_recovery.xml')
 
 def generate_launch_description():
     ld = LaunchDescription()
@@ -93,32 +87,25 @@ def generate_launch_description():
         name='slam_toolbox',
         output='screen')
     
-    # laser_odom_node = Node(
-    #             package='rf2o_laser_odometry',
-    #             executable='rf2o_laser_odometry_node',
-    #             name='rf2o_laser_odometry',
-    #             output='screen',
-    #             parameters=[{
-    #                 'laser_scan_topic' : '/scan',
-    #                 'odom_topic' : '/odom_rf2o',
-    #                 'publish_tf' : False,
-    #                 'base_frame_id' : 'base_link',
-    #                 'odom_frame_id' : 'odom',
-    #                 'init_pose_from_topic' : '/wheel/odometry',
-    #                 'freq' : 10.0}],
-    #         )
+    laser_odom_node = Node(
+                package='rf2o_laser_odometry',
+                executable='rf2o_laser_odometry_node',
+                name='rf2o_laser_odometry',
+                output='screen',
+                parameters=[{
+                    'laser_scan_topic' : '/scan',
+                    'odom_topic' : '/odom_rf2o',
+                    'publish_tf' : False,
+                    'base_frame_id' : 'base_link',
+                    'odom_frame_id' : 'odom',
+                    'init_pose_from_topic' : '',
+                    'freq' : 10.0}],
+            )
     
-    camera_node = Node(
-        package='v4l2_camera',
-        executable='v4l2_camera_node'
-    )
-    # start_ros2_navigation_cmd = IncludeLaunchDescription(
-    # PythonLaunchDescriptionSource(os.path.join(nav2_launch_dir, 'bringup_launch.py')),
-    # launch_arguments = {'slam': True,
-    #                     'map': map_yaml_file,
-    #                     'params_file': "config/nav2_params.yaml",
-    #                     'default_bt_xml_filename': default_bt_xml_filename}.items())
-
+    # camera_node = Node(
+    #     package='v4l2_camera',
+    #     executable='v4l2_camera_node'
+    # )
 
     ld.add_action(diff_drive_node)
     ld.add_action(pid_node)
@@ -130,7 +117,7 @@ def generate_launch_description():
     ld.add_action(start_robot_localization_cmd)
     ld.add_action(laser_node)
     ld.add_action(start_async_slam_toolbox_node)
-    # ld.add_action(laser_odom_node)
-    ld.add_action(camera_node)
+    ld.add_action(laser_odom_node)
+    # ld.add_action(camera_node)
     
     return ld
