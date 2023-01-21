@@ -1,15 +1,15 @@
 <?xml version="1.0"?>
 <robot name="pibot" xmlns:xacro="http://ros.org/wiki/xacro">
 <!-- Define robot constants -->
-  <xacro:property name="base_width" value="0.178"/>
-  <xacro:property name="base_length" value="0.194"/>
-  <xacro:property name="base_height" value="0.067"/>
+  <xacro:property name="base_width" value="0.1397"/>
+  <xacro:property name="base_length" value="0.1397"/>
+  <xacro:property name="base_height" value="0.1129"/>
   <xacro:property name="wheel_radius" value="0.032499"/>
-  <xacro:property name="wheel_width" value="0.013"/>
-  <xacro:property name="wheel_ygap" value="0.007"/>
-  <xacro:property name="wheel_zoff" value="0.0185"/>
-  <xacro:property name="wheel_xoff" value="0.088"/>
-  <xacro:property name="caster_xoff" value="0.082"/>
+  <xacro:property name="wheel_width" value="0.025"/>
+  <xacro:property name="wheel_ygap" value="0.015"/>
+  <xacro:property name="wheel_zoff" value="0.07915"/>
+  <xacro:property name="wheel_xoff" value="-0.015"/>
+  <!-- <xacro:property name="caster_xoff" value="-0.085"/> -->
 
    <!-- Robot Base -->
   <link name="base_link">
@@ -18,18 +18,19 @@
         <box size="${base_length} ${base_width} ${base_height}"/>
       </geometry>
       <material name="Cyan">
-        <color rgba="0 1.0 1.0 1.0"/>
+        <color rgba="0.0 1.0 1.0 1.0"/>
       </material>
     </visual>
   </link>
 
   <!-- Robot Footprint -->
+  <!-- z origin ${-(wheel_radius+wheel_zoff+base_height)} -->
   <link name="base_footprint"/>
 
   <joint name="base_joint" type="fixed">
     <parent link="base_link"/>
     <child link="base_footprint"/>
-    <origin xyz="0.0 0.0 ${-(wheel_radius+wheel_zoff)}" rpy="0 0 0"/>
+    <origin xyz="0.0 0.0 0.0" rpy="0 0 0"/>
   </joint>
 
     <!-- Wheels -->
@@ -58,10 +59,10 @@
   <xacro:wheel prefix="drivewhl_r" x_reflect="-1" y_reflect="-1" />
 
     <!-- Caster Wheel -->
-  <link name="front_caster">
+  <!-- <link name="front_caster">
     <visual>
       <geometry>
-        <sphere radius="${(wheel_radius+wheel_zoff-(base_height/2))}"/>
+        <sphere radius="0.020"/>
       </geometry>
       <material name="Cyan">
         <color rgba="0 1.0 1.0 1.0"/>
@@ -73,7 +74,7 @@
     <parent link="base_link"/>
     <child link="front_caster"/>
     <origin xyz="${caster_xoff} 0.0 ${-(base_height/2)}" rpy="0 0 0"/>
-  </joint>
+  </joint> -->
 
   <!-- Lidar Link -->
   <link name="lidar_link">
@@ -90,7 +91,7 @@
   <joint name="lidar_joint" type="fixed">
     <parent link="base_link"/>
     <child link="lidar_link"/>
-    <origin xyz="0.05 0 0.055" rpy="0 0 0"/>
+    <origin xyz="0.0 0 0.086" rpy="0 0 0"/>
   </joint>
 
   <!-- Lidar Link -->

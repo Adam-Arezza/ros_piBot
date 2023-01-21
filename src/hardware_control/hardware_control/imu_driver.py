@@ -17,9 +17,13 @@ gyro_offset_z = -0.9788980000000018
 class IMU_driver(Node):
     def __init__(self):
         super().__init__("imu_driver")
+        self.node_name = "imu_driver"
         self.imu = FaBo9Axis_MPU9250.MPU9250()
         self.imu_pub = self.create_publisher(Imu, "/imu/data_raw", qos_profile=10)
         self.timer = self.create_timer(0.05, self.get_data)
+
+        #Initialization message
+        self.get_logger().info(f'{self.node_name} is now online.')
     
     def get_data(self):
         # imu_data = Float32MultiArray()

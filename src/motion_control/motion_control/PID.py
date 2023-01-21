@@ -23,7 +23,7 @@ class PID_node(Node):
         self.pid_rate = self.get_parameter("pid_rate").get_parameter_value().double_value
 
         # Timers
-        # self.pid_timer = self.create_timer(self.pid_rate, self.pid_loop)
+        self.pid_timer = self.create_timer(self.pid_rate, self.pid_loop)
 
         # Subcribers and Publishers
         self.target_vels = self.create_subscription(
@@ -34,7 +34,7 @@ class PID_node(Node):
         self.current_wheel_vels = self.create_subscription(
                                                            Float32MultiArray, 
                                                            "/wheel/velocities", 
-                                                           self.pid_loop, 
+                                                           self.set_velocities, 
                                                            qos_profile=10)
         self.pid_output = self.create_publisher(Float32MultiArray, "/pidR_pidL", qos_profile=10)
 
@@ -47,6 +47,9 @@ class PID_node(Node):
 
         self.prev_right_err = 0
         self.prev_left_err = 0
+
+        self.right_vel = 0.0
+        self.left_vel = 0.0
 
         # Initialization message
         self.get_logger().info(f'{self.node_name} is now online.')
@@ -61,16 +64,20 @@ class PID_node(Node):
             self.left_sum_err = 0
             self.target_left_vel = targets.data[1]
 
-    def pid_loop(self, vels):
-
+    def set_velocities(self, velocities):
         # get the current wheel velocities
-        right_vel = vels.data[0]
-        left_vel = vels.data[1]
+        self.right_vel = velocities.data[0]
+        self.left_vel = velocities.data[1]
 
+    def pid_loop(self):
         # compute the current error
         # compute the sum of errors
         # compute the delta of current - previous error
         # compute the PID output
+
+        right_vel = self.right_vel
+        left_vel = self.left_vel
+
         right_err = self.target_right_vel - right_vel
         self.right_err_sum = self.right_err_sum + right_err
         d_right_err = right_err - self.prev_right_err

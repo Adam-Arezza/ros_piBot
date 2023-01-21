@@ -6,9 +6,9 @@ diff_drive_controller:
     max_angular_vel: 0.75 
 pid_controller:
   ros__parameters:
-    kp: 0.75
-    ki: 0.5
-    kd: 0.4
+    kp: 1.0
+    ki: 0.4
+    kd: 0.0
     pid_rate: 0.05
 velocities:
   ros__parameters:

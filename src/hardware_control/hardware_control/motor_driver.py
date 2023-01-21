@@ -58,6 +58,9 @@ class Motor_driver(Node):
         self.p2.start(0)
         self.vr = 0
         self.vl = 0
+        self.right_rpm_to_dc = [3.38185955e-03, 3.54084578e-02, 3.88380108e+01]
+        self.left_rpm_to_dc = [3.39027066e-03, 7.21075773e-04, 4.06248291e+01]
+        self.velocity_to_rpm = 60 / (2 * math.pi)
 
         #Initialization message
         self.get_logger().info(f'{self.node_name} is now online.')
@@ -70,11 +73,25 @@ class Motor_driver(Node):
         self.vr = diff_drive_vels.data[0]
         self.vl = diff_drive_vels.data[1]
     
-    def velocity_to_duty_cycle(self, pid, target):
+    def velocity_to_duty_cycle(self, pid, target, motor):
         vel_range = self.vel_max - self.vel_min
         dc_range = self.dc_max - self.dc_min
-        output = ((pid * dc_range) / vel_range) + self.dc_min
+        # output = ((pid * dc_range) / vel_range) + self.dc_min
+        output = None
 
+        rpm = (pid / 0.032499) * self.velocity_to_rpm
+
+        if motor == "right":
+            if rpm < 0:
+                output = -1*(rpm**2 * self.right_rpm_to_dc[0]) + rpm * self.right_rpm_to_dc[1] + self.right_rpm_to_dc[2]
+            else:
+                output = rpm**2 * self.right_rpm_to_dc[0] + rpm * self.right_rpm_to_dc[1] + self.right_rpm_to_dc[2]
+        elif motor == "left":
+            if rpm < 0:
+                output = -1 * (rpm**2 * self.left_rpm_to_dc[0]) + rpm * self.left_rpm_to_dc[1] + self.left_rpm_to_dc[2]
+            else:
+                output = rpm**2 * self.left_rpm_to_dc[0] + rpm * self.left_rpm_to_dc[1] + self.left_rpm_to_dc[2]
+        
         if target < 0:
             output = -output
 
@@ -100,9 +117,9 @@ class Motor_driver(Node):
         pid_left = pid_vals.data[1]
         dcL = 0
         dcR = 0
-        dcL = self.velocity_to_duty_cycle(pid_left, self.vl)
-        dcR = self.velocity_to_duty_cycle(pid_right, self.vr)
-        # self.get_logger().info(f'{dcR}:{dcL}')
+        dcL = self.velocity_to_duty_cycle(pid_left, self.vl, "left")
+        dcR = self.velocity_to_duty_cycle(pid_right, self.vr, "right")
+        self.get_logger().info(f'{dcR}:{dcL}')
         msg = f'{dcR}:{dcL}'
         dc_msg = String()
         dc_msg.data = msg
@@ -114,11 +131,11 @@ class Motor_driver(Node):
         elif self.vl < 0 and self.vr < 0:
             self.reverse([dcR,dcL])
         elif self.vl < 0 and self.vr > 0:
-            self.spin_right([80, 80])
+            self.spin_right([dcR,dcL])
         elif self.vl > 0 and self.vr < 0:
-            self.spin_left([80, 80])
+            self.spin_left([dcR,dcL])
         
-    def forward(self, duty_cycles):
+    def reverse(self, duty_cycles):
         #right motor
         GPIO.output(40, True)
         GPIO.output(33, False)
@@ -132,7 +149,7 @@ class Motor_driver(Node):
         self.p2.ChangeDutyCycle(duty_cycles[1])
         # self.get_logger().info(f'{duty_cycles[0]}:{duty_cycles[1]}')
     
-    def reverse(self, duty_cycles):
+    def forward(self, duty_cycles):
         #right motor
         GPIO.output(40, True)
         GPIO.output(33, True)
