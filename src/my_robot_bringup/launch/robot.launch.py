@@ -13,7 +13,7 @@ import xacro
 
 
 pkg_share = launch_ros.substitutions.FindPackageShare(package='robot_description').find('robot_description')
-xacro_file = os.path.join('src/robot_description/robot_description.urdf.xacro')
+xacro_file = os.path.join('src/robot_description/robot.urdf.xacro')
 robot_description_config = xacro.process_file(xacro_file)
 
 def generate_launch_description():
