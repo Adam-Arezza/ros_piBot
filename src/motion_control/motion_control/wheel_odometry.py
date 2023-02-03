@@ -85,7 +85,7 @@ class WheelOdometry(Node):
         d_x = None
         d_y = None
 
-        if d_left_ticks > 0 and d_right_ticks > 0:
+        if d_left_ticks != 0 and d_right_ticks != 0:
             d_x = self.x + dist * math.cos(self.heading)
             d_y = self.y + dist * math.sin(self.heading)
 

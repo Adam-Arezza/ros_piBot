@@ -24,7 +24,7 @@ setup(
     entry_points={
         'console_scripts': [
         #node_name=package_name.node_script:main <--- add the main if there is a main function in script
-        # 'serial_comms=hardware_control.serial_sensors:main',
+        'serial_comms=hardware_control.serial_sensors:main',
         'imu_driver=hardware_control.imu_driver:main',
         'motor_driver=hardware_control.motor_driver:main',
         'encoders=hardware_control.encoders:main'
