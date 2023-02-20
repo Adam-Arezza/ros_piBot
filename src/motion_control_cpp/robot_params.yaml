@@ -1,4 +1,4 @@
-diff_drive_controller:
+differential_drive:
   ros__parameters:
     wheel_base: 0.2200
     wheel_radius: 0.032499
@@ -18,7 +18,7 @@ wheel_odometry:
     wheel_base: 0.2200
     wheel_radius: 0.032499
     ticks_per_rev: 80
-    refresh_rate: 0.03
+    refresh_rate: 30
     meters_per_tick: 0.0051049
     frame_id: "odom"
     child_frame_id: "base_link"

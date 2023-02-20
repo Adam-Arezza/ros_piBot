@@ -13,9 +13,10 @@ import xacro
 
 
 pkg_share = launch_ros.substitutions.FindPackageShare(package='robot_description').find('robot_description')
-xacro_file = os.path.join('src/robot_description/robot_description.urdf.xacro')
+xacro_file = os.path.join('src/robot_description/robot.urdf.xacro')
 robot_description_config = xacro.process_file(xacro_file)
-
+use_sim_time = LaunchConfiguration('use_sim_time')
+params = {'robot_description': robot_description_config.toxml(), 'use_sim_time':use_sim_time}
 def generate_launch_description():
     ld = LaunchDescription()
 
@@ -30,7 +31,7 @@ def generate_launch_description():
         package='robot_state_publisher',
         executable='robot_state_publisher',
         output='screen',
-        parameters=[{'robot_description': robot_description_config.toxml()}]
+        parameters=[params]
     )
 
     serial_node = Node(
@@ -39,9 +40,9 @@ def generate_launch_description():
     )
 
     diff_drive_node = Node(
-        package="motion_control",
-        executable="diff_drive_controller",
-        parameters=["src/motion_control/robot_params.yaml"]
+        package="motion_control_cpp",
+        executable="differential_drive",
+        parameters=["src/motion_control_cpp/robot_params.yaml"]
     )
 
     pid_node = Node(
@@ -67,9 +68,9 @@ def generate_launch_description():
     )
 
     wheel_odometry_node = Node(
-        package='motion_control',
+        package='motion_control_cpp',
         executable='wheel_odometry',
-        parameters=["src/motion_control/robot_params.yaml"]
+        parameters=["src/motion_control_cpp/robot_params.yaml"]
     )
 
     laser_node = Node(
@@ -77,7 +78,7 @@ def generate_launch_description():
             executable='rplidar_composition',
             output='screen',
             parameters=[{
-                'serial_port': '/dev/ttyUSB0',
+                'serial_port': '/dev/ttyUSB1',
                 'serial_baudrate': 115200,  # A1 / A2
                 # 'serial_baudrate': 256000, # A3
                 'frame_id': 'laser',
@@ -111,17 +112,26 @@ def generate_launch_description():
         executable='v4l2_camera_node'
     )
 
+    wheel_joint_pub = Node(
+	package='motion_control',
+	executable='wheel_joint_publisher'
+    )
+
+    joint_pub_node = Node(
+	package='joint_state_publisher',
+	executable='joint_state_publisher',
+	parameters=[{'source_list':['wheel_states']}]
+    )
+
 
     ld.add_action(diff_drive_node)
-    # ld.add_action(pid_node)
-    # ld.add_action(motor_driver_node)
-    # ld.add_action(imu_driver)
-    # ld.add_action(encoder_node)
+    ld.add_action(wheel_joint_pub)
+    ld.add_action(joint_pub_node)
     ld.add_action(wheel_odometry_node)
     ld.add_action(node_robot_state_publisher)
     ld.add_action(start_robot_localization_cmd)
-    # ld.add_action(laser_node)
-    # ld.add_action(laser_odom_node)
+    ld.add_action(laser_node)
+    ld.add_action(laser_odom_node)
     ld.add_action(map_to_odom_static_tf)
     # ld.add_action(camera_node)
     ld.add_action(serial_node)
