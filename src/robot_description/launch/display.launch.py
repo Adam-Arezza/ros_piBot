@@ -25,10 +25,10 @@ def generate_launch_description():
         parameters=[params]
     )
 
-    joint_pub_node = Node(
-        package='joint_state_publisher_gui',
-        executable='joint_state_publisher_gui'
-    )
+    # joint_pub_node = Node(
+    #     package='joint_state_publisher_gui',
+    #     executable='joint_state_publisher_gui'
+    # )
 
     rviz_node = Node(
         package='rviz2',

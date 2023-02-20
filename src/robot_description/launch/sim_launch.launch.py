@@ -19,7 +19,7 @@ def generate_launch_description():
     use_sim_time = LaunchConfiguration('use_sim_time')
 
     robot_description_config = Command(['xacro ', xacro_file, ' sim_mode:=', use_sim_time])
-
+    gazebo_params_file = 'config/gazebo_params.yaml'
 
     # Create a robot_state_publisher node
     params = {'robot_description': robot_description_config, 'use_sim_time': use_sim_time}
@@ -32,13 +32,27 @@ def generate_launch_description():
 
     gazebo = IncludeLaunchDescription(
         PythonLaunchDescriptionSource([os.path.join(
-                                       get_package_share_directory('gazebo_ros'), 'launch', 'gazebo.launch.py')])
+                                       get_package_share_directory('gazebo_ros'), 'launch', 'gazebo.launch.py')]),
+                                       launch_arguments={'extra_gazebo_args': '--ros-args --params-file ' + gazebo_params_file}.items()
     )
 
     spawn_entity = Node(package='gazebo_ros',
                         executable='spawn_entity.py',
                         arguments=['-topic', '/robot_description', '-entity', 'pibot'],
                         output='screen')
+    diff_cont = Node(
+        package='controller_manager',
+        executable='spawner.py',
+        arguments=['diff_cont']
+    )
+
+    joint_broadcaster_spawner = Node(
+        package="controller_manager",
+        executable="spawner.py",
+        arguments=['joint_broad']
+    )
+
+
 
     # Launch!
     return LaunchDescription([
@@ -49,5 +63,7 @@ def generate_launch_description():
 
         node_robot_state_publisher,
         gazebo,
-        spawn_entity
+        spawn_entity,
+        diff_cont,
+        joint_broadcaster_spawner
     ])

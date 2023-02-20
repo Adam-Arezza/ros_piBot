@@ -3,6 +3,7 @@
     <xacro:arg name="sim_mode" default="false"/>
     <xacro:include filename="robot_description.xacro"/>
     <xacro:if value="$(arg sim_mode)">
-        <xacro:include filename="gazebo_control.xacro"/>
+        <!-- <xacro:include filename="gazebo_control.xacro"/> -->
+        <xacro:include filename="ros2_control.xacro"/>
     </xacro:if>
 </robot>   
