@@ -40,9 +40,9 @@ def generate_launch_description():
     )
 
     diff_drive_node = Node(
-        package="motion_control_cpp",
-        executable="differential_drive",
-        parameters=["src/motion_control_cpp/robot_params.yaml"]
+        package="motion_control",
+        executable="diff_drive_controller",
+        parameters=["src/motion_control/robot_params.yaml"]
     )
 
     pid_node = Node(
@@ -68,9 +68,9 @@ def generate_launch_description():
     )
 
     wheel_odometry_node = Node(
-        package='motion_control_cpp',
+        package='motion_control',
         executable='wheel_odometry',
-        parameters=["src/motion_control_cpp/robot_params.yaml"]
+        parameters=["src/motion_control/robot_params.yaml"]
     )
 
     laser_node = Node(

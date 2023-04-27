@@ -17,5 +17,6 @@
     <depend>rclpy</depend>
     <depend>cv2</depend>
     <depend>numpy</depend>
+    <depend>opencv-python</depend>
   </export>
 </package>

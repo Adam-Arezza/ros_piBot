@@ -37,7 +37,7 @@ private:
         float angular_vel = cmd->angular.z;
 
         float vr = linear_vel + ((angular_vel * wheel_base) / 2);
-        float vl = linear_vel - ((angular_vel * wheel_radius) / 2);
+        float vl = linear_vel - ((angular_vel * wheel_base) / 2);
 
         auto wheel_vels = std_msgs::msg::Float32MultiArray();
         wheel_vels.data = {vr, vl};
