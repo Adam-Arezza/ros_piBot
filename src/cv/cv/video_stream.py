@@ -16,6 +16,8 @@ class VideoStream(Node):
         self.capture.set(cv2.CAP_PROP_FPS, 20)
         self.bridge = CvBridge()
         self.get_logger().info(f'{self.node_name} is now online.')
+        if not self.capture:
+            self.get_logger().info("Could not open camera.")
     
     def get_frames(self):
         ret, frame = self.capture.read()
