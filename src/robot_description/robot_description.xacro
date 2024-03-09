@@ -1,15 +1,15 @@
 <?xml version="1.0"?>
 <robot name="pibot" xmlns:xacro="http://ros.org/wiki/xacro">
 <!-- Define robot constants -->
-  <xacro:property name="base_width" value="0.1397"/>
-  <xacro:property name="base_length" value="0.1397"/>
-  <xacro:property name="base_height" value="0.1194"/>
-  <xacro:property name="wheel_radius" value="0.032499"/>
-  <xacro:property name="wheel_width" value="0.025"/>
-  <xacro:property name="wheel_ygap" value="0.015"/>
+  <xacro:property name="base_width" value="0.2794"/>
+  <xacro:property name="base_length" value="0.4318"/>
+  <xacro:property name="base_height" value="0.17145"/>
+  <xacro:property name="wheel_radius" value="0.06604"/>
+  <xacro:property name="wheel_width" value="0.066675"/>
+  <xacro:property name="wheel_ygap" value="0.03"/>
   <xacro:property name="wheel_zoff" value="0.07915"/>
-  <xacro:property name="wheel_xoff" value="-0.015"/>
-  <xacro:property name="caster_xoff" value="-0.085"/>
+  <xacro:property name="wheel_xoff" value="-0.08255"/>
+  <xacro:property name="caster_xoff" value="-0.1555"/>
 
    <!-- Robot Base -->
   <link name="base_link">
@@ -87,8 +87,8 @@
                izz="${(1/12) * 0.1 * (3 * wheel_radius + wheel_width*wheel_width)}"/>
       </inertial>
     </link>
-
-    <joint name="${prefix}_joint" type="continuous">
+<!-- change type to fixed for rviz -->
+    <joint name="${prefix}_joint" type="fixed">
       <parent link="base_link"/>
       <child link="${prefix}_link"/>
       <origin xyz="${-wheel_xoff} ${y_reflect*(base_width/2+wheel_ygap)} ${-wheel_zoff}" rpy="0 0 0"/>
@@ -103,7 +103,7 @@
   <link name="rear_caster">
     <visual>
       <geometry>
-        <sphere radius="0.020"/>
+        <sphere radius="0.0254"/>
       </geometry>
       <material name="White">
         <color rgba="1.0 1.0 1.0 1.0"/>
@@ -131,7 +131,7 @@
   <joint name="caster_joint" type="fixed">
     <parent link="base_link"/>
     <child link="rear_caster"/>
-    <origin xyz="${caster_xoff} 0.0 ${-(base_height/2 + wheel_radius)}" rpy="0 0 0"/>
+    <origin xyz="${caster_xoff} 0.0 ${-(base_height/2 + 0.025)}" rpy="0 0 0"/>
   </joint>
 
   <!-- Lidar Link -->
@@ -149,7 +149,7 @@
   <joint name="lidar_joint" type="fixed">
     <parent link="base_link"/>
     <child link="lidar_link"/>
-    <origin xyz="0.0 0 0.086" rpy="0 0 0"/>
+    <origin xyz="0.1365 0 0.11" rpy="0 0 0"/>
   </joint>
 
   <!-- Lidar Link -->
