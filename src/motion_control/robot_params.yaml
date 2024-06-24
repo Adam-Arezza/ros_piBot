@@ -1,8 +1,8 @@
 diff_drive_controller:
   ros__parameters:
-    wheel_base: 0.2200
-    wheel_radius: 0.032499
-    max_linear_vel: 0.4
+    wheel_base: 0.352425
+    wheel_radius: 0.06604
+    max_linear_vel: 0.45
     max_angular_vel: 0.75 
 pid_controller:
   ros__parameters:
@@ -12,14 +12,14 @@ pid_controller:
     pid_rate: 0.05
 velocities:
   ros__parameters:
-    wheel_radius: 0.032499
+    wheel_radius: 0.06604
 wheel_odometry:
   ros__parameters:
-    wheel_base: 0.2200
-    wheel_radius: 0.032499
-    ticks_per_rev: 80
+    wheel_base: 0.352425
+    wheel_radius: 0.06604
+    ticks_per_rev: 1120
     refresh_rate: 0.03
-    meters_per_tick: 0.0051049
+    meters_per_tick: 0.000244034
     frame_id: "odom"
     child_frame_id: "base_link"
     

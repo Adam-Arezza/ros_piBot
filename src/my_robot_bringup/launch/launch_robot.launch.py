@@ -6,7 +6,8 @@ from ament_index_python.packages import get_package_share_directory
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch import LaunchDescription
 from launch.substitutions import LaunchConfiguration
-from launch.actions import DeclareLaunchArgument
+from launch.actions import DeclareLaunchArgument, RegisterEventHandler
+from launch.event_handlers import OnProcessStart
 from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
 import xacro
@@ -101,6 +102,10 @@ def generate_launch_description():
                     'freq' : 5.0}],
             )
     
+    laser_odom_delay = RegisterEventHandler(
+                event_handler=OnProcessStart(
+                    target_action=laser_node, on_start=[laser_odom_node]))
+    
     map_to_odom_static_tf = Node(
         package='tf2_ros',
         executable='static_transform_publisher',
@@ -108,8 +113,8 @@ def generate_launch_description():
     )
 
     camera_node = Node(
-        package='v4l2_camera',
-        executable='v4l2_camera_node'
+        package='cv',
+        executable='video_stream'
     )
 
     wheel_joint_pub = Node(
@@ -131,9 +136,9 @@ def generate_launch_description():
     ld.add_action(node_robot_state_publisher)
     ld.add_action(start_robot_localization_cmd)
     ld.add_action(laser_node)
-    ld.add_action(laser_odom_node)
+    ld.add_action(laser_odom_delay)
     ld.add_action(map_to_odom_static_tf)
-    # ld.add_action(camera_node)
+    ld.add_action(camera_node)
     ld.add_action(serial_node)
     
     return ld
